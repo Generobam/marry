@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf8f0">
+  <meta name="description" content="서로의 가장 좋은 친구가 되어, 함께하는 첫 번째 모험을 시작합니다. 2027년 6월 12일 토요일 오전 11시, 저희의 결혼식에 초대합니다.">
+  <meta property="og:title" content="우리, 함께하는 첫 번째 모험">
+  <meta property="og:description" content="2027년 6월 12일 토요일 오전 11시 · 저희 결혼식에 초대합니다.">
+  <meta property="og:type" content="website">
+  <title>우리, 함께하는 첫 번째 모험 · 2027.06.12</title>
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600&family=Silkscreen&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#invitation">초대글로 바로가기</a>
+  <header class="site-header shell">
+    <a class="wordmark" href="#home" aria-label="청첩장 처음으로"><span class="pixel-heart" aria-hidden="true">♥</span> OUR LITTLE ADVENTURE</a>
+    <a class="header-date" href="#wedding-day">27. 06. 12 <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="home">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="tiny-rule"></span> WE'RE GETTING MARRIED</p>
+        <h1 id="hero-title">우리, 함께하는<br>첫 번째 <span class="highlight">모험</span></h1>
+        <p class="hero-description">오랜 친구처럼, 설레는 연인처럼.<br>이제 같은 곳을 바라보며 걸어가려 합니다.</p>
+        <div class="couple-names"><span data-groom>신랑</span><span class="name-heart" aria-label="그리고">♡</span><span data-bride>신부</span></div>
+        <div class="hero-date"><span class="date-mark" aria-hidden="true">✳</span><p><time data-date-label datetime="2027-06-12T11:00:00+09:00">2027년 6월 12일 토요일 오전 11시</time><span data-venue-short>예식 장소는 곧 안내드릴게요</span></p></div>
+      </div>
+      <figure class="hero-art">
+        <div class="postcard-top"><span>INVITATION TO OUR NEXT CHAPTER</span><span aria-hidden="true">✧</span></div>
+        <div class="illustration-wrap"><svg id="wedding-portrait" viewBox="0 0 320 300" role="img" aria-label="꽃이 핀 정원에서 손을 맞잡은 픽셀 신랑과 신부"></svg><span class="portrait-caption">A little love. A lifetime of adventures.</span></div>
+        <figcaption><span>SAVE OUR DATE</span><strong data-numeric-date>2027. 06. 12</strong><span class="postcard-heart" aria-hidden="true">♡</span></figcaption>
+      </figure>
+      <a class="scroll-note" href="#invitation">소중한 당신을 초대합니다 <span aria-hidden="true">↓</span></a>
+    </section>
+    <section id="invitation" class="invitation section-pad" aria-labelledby="invitation-title">
+      <div class="letter">
+        <span class="flower-mark" aria-hidden="true">✳</span>
+        <p class="eyebrow">A LETTER TO YOU</p>
+        <h2 id="invitation-title">우리의 새로운 시작에<br>함께해 주세요</h2>
+        <p>혼자 걷던 두 사람이 만나<br>서로의 가장 좋은 친구가 되었습니다.</p>
+        <p>때로는 작은 장애물을 만나더라도<br>손을 꼭 잡고, 함께 뛰어넘으며<br>우리만의 이야기를 만들어 가려 합니다.</p>
+        <p>그 첫 장을 여는 날,<br>소중한 걸음으로 자리를 빛내 주세요.<br>보내주시는 마음, 오래도록 간직하겠습니다.</p>
+        <div class="letter-sign"><span data-groom>신랑</span><span class="name-heart" aria-hidden="true">&</span><span data-bride>신부</span><span>드림</span></div>
+      </div>
+    </section>
+    <section id="wedding-day" class="day-section shell section-pad" aria-labelledby="day-title">
+      <div class="day-intro"><p class="eyebrow">THE DAY WE SAY “I DO”</p><h2 id="day-title">우리의 날</h2><p class="day-full" data-date-label>2027년 6월 12일 토요일 오전 11시</p><p class="muted">초여름의 싱그러움이 가득한 날,<br>기쁜 마음으로 기다리겠습니다.</p><button class="text-button" id="calendar-save" type="button"><span aria-hidden="true">＋</span> 달력에 일정 저장</button></div>
+      <div class="calendar-wrap"><div class="calendar-heading"><strong id="calendar-month">June</strong><span id="calendar-year">2027</span></div><table class="calendar" aria-label="2027년 6월 예식일 달력"><thead><tr><th scope="col">일</th><th scope="col">월</th><th scope="col">화</th><th scope="col">수</th><th scope="col">목</th><th scope="col">금</th><th scope="col">토</th></tr></thead><tbody id="calendar-body"></tbody></table></div>
+      <div class="countdown-wrap"><p id="countdown-caption">우리가 부부가 되기까지</p><div class="countdown" aria-label="예식까지 남은 시간"><div><strong id="days">—</strong><span>DAYS</span></div><i aria-hidden="true">:</i><div><strong id="hours">—</strong><span>HOURS</span></div><i aria-hidden="true">:</i><div><strong id="minutes">—</strong><span>MINUTES</span></div><i aria-hidden="true">:</i><div><strong id="seconds">—</strong><span>SECONDS</span></div></div><p class="countdown-note">매일 조금씩, 서로에게 더 가까이 <span aria-hidden="true">♥</span></p></div>
+    </section>
+    <section id="location" class="location-section section-pad" aria-labelledby="location-title"><div class="location-layout shell"><div><p class="eyebrow">COME CELEBRATE WITH US</p><h2 id="location-title">마음이 만나는 곳</h2></div><div class="location-details"><div class="venue-icon" aria-hidden="true">⌂</div><h3 id="venue-name">예식 장소를 준비하고 있어요</h3><p id="venue-hall" hidden></p><p id="venue-address">장소가 정해지면 이곳에 안내드릴게요.</p><p id="venue-transport" hidden></p><div class="location-actions" id="location-actions" hidden><a class="button button-outline" id="map-link" target="_blank" rel="noopener noreferrer">지도 보기 ↗</a><button class="text-button" id="copy-address" type="button">주소 복사</button></div></div></div></section>
+    <section id="adventure" class="adventure-section section-pad" aria-labelledby="adventure-title">
+      <div class="shell"><div class="game-heading"><div><p class="eyebrow">TWO PLAYERS. ONE ADVENTURE.</p><h2 id="adventure-title">어떤 길이든, 함께라면</h2></div><p>작은 턱도, 커다란 웅덩이도.<br>둘이 함께라면 폴짝 넘어갈 수 있죠.</p></div>
+        <div class="game-frame"><div class="game-hud"><span><span class="hud-heart" aria-hidden="true">♥ ♥</span> <span class="hud-label">1P + 2P</span></span><span id="game-stage">ON OUR WAY</span><span id="game-progress">0%</span></div><canvas id="runner" width="960" height="320" aria-label="신랑과 신부가 꽃밭의 돌과 웅덩이를 뛰어넘어 식장에 도착하는 애니메이션">신랑과 신부가 함께 장애물을 넘어 식장으로 달려가는 모습입니다.</canvas><div class="game-bottom"><p id="game-status" role="status">손을 꼭 잡고 식장으로 가는 중!</p><span class="auto-badge" id="auto-label">AUTO PLAY</span></div></div>
+        <div class="game-controls"><p>화면을 톡 누르면, 둘이 함께 점프!<br><span>키보드에서는 스페이스 키로 함께해요.</span></p><div class="game-buttons"><button id="pause-game" class="icon-button" type="button" aria-label="애니메이션 일시정지" aria-pressed="false">Ⅱ</button><button id="jump-game" class="button" type="button"><span aria-hidden="true">↑</span> 함께 점프</button></div></div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer shell"><span class="footer-heart" aria-hidden="true">♡</span><h2>우리의 모험을<br>축복해 주셔서 감사합니다.</h2><p><span data-groom>신랑</span> <span class="name-heart">&</span> <span data-bride>신부</span></p><button class="text-button share-button" id="share-invitation" type="button">청첩장 공유하기 <span aria-hidden="true">↗</span></button><div class="footer-meta"><span>MADE WITH LOVE, FOR OUR NEXT CHAPTER</span><span data-numeric-date>2027. 06. 12</span></div></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="share-dialog"><form method="dialog"><button class="dialog-close icon-button" aria-label="닫기">×</button><h2>청첩장 링크</h2><p>아래 주소를 복사해 소중한 분께 전해 주세요.</p><input id="share-url" type="text" readonly aria-label="청첩장 주소"><button class="button" value="close">닫기</button></form></dialog>
+  <noscript><p class="noscript">날짜는 2027년 6월 12일 오전 11시입니다. 디데이와 애니메이션을 보려면 JavaScript를 켜 주세요.</p></noscript>
+</body>
+</html>
