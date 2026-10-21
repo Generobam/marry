@@ -10,11 +10,13 @@ const fill = (selector, value) => document.querySelectorAll(selector).forEach(no
 const date = new Date(wedding.date);
 const { year, month, day } = koreaDateParts(date);
 const numericDate = `${year}. ${String(month).padStart(2,'0')}. ${String(day).padStart(2,'0')}`;
-const dateLabel = new Intl.DateTimeFormat('ko-KR', { timeZone:'Asia/Seoul', year:'numeric',month:'long',day:'numeric',weekday:'long',hour:'numeric',minute:'numeric',hour12:true }).format(date).replace(':00','');
+const timeLabel = new Intl.DateTimeFormat('ko-KR', { timeZone:'Asia/Seoul',hour:'numeric',minute:'2-digit',hour12:true }).format(date);
+const dateLabel = `${new Intl.DateTimeFormat('ko-KR', { timeZone:'Asia/Seoul',year:'numeric',month:'long',day:'numeric',weekday:'long' }).format(date)} ${timeLabel}`;
 fill('[data-groom]',wedding.groom||'신랑');
 fill('[data-bride]',wedding.bride||'신부');
 fill('[data-numeric-date]',numericDate);
 fill('[data-date-label]',dateLabel);
+fill('[data-time-label]',timeLabel);
 document.querySelector('time').dateTime=wedding.date;
 document.title=`${wedding.groom||'신랑'} ♥ ${wedding.bride||'신부'} · ${numericDate}`;
 document.querySelector('meta[property="og:title"]').content=`${wedding.groom||'신랑'} ♥ ${wedding.bride||'신부'} · 결혼합니다`;
@@ -41,6 +43,16 @@ if(wedding.mapUrl||wedding.address) {
   } catch {$('#map-link').hidden=true;}
 }
 $('#copy-address').hidden=!wedding.address;
+const placeQuery = encodeURIComponent(`${wedding.venue} ${wedding.address}`.trim());
+$('#venue-map').src = `https://www.google.com/maps?q=${placeQuery}&output=embed&hl=ko&z=16`;
+$('#kakao-map-link').href = `https://map.kakao.com/link/search/${placeQuery}`;
+for (const item of wedding.travelGuide || []) {
+  const article = document.createElement('article');
+  const title = document.createElement('h3'); title.textContent = item.title;
+  article.append(title);
+  for (const line of item.lines) { const p = document.createElement('p'); p.textContent = line; article.append(p); }
+  $('#travel-guide').append(article);
+}
 
 $('#calendar-month').textContent=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',month:'long'}).format(date);
 $('#calendar-year').textContent=String(year);

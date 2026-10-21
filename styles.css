@@ -107,7 +107,7 @@ h1 { font-size: var(--text-display); line-height: 1.5; letter-spacing: -.065em; 
 .game-hud { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 0; font-family: var(--font-pixel); font-size: 10px; }
 .hud-heart { color: var(--color-rose); font-size: 14px; margin-right: 10px; }
 #game-progress { min-width: 45px; text-align: right; }
-#runner { width: 100%; height: 300px; display: block; image-rendering: pixelated; touch-action: pan-y; cursor: pointer; }
+#runner { width: 100%; height: 300px; display: block; image-rendering: pixelated; touch-action: pan-y; }
 .game-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 14px 22px; background: var(--color-paper-2); border-top: var(--rule); }
 .game-bottom > p { font-size: 11px; }
 .auto-badge { font-size: 8px; letter-spacing: .02em; font-family: var(--font-pixel); white-space: nowrap; }
@@ -325,4 +325,31 @@ body.album-open { position: fixed; width: 100%; top: var(--album-scroll-top); }
   .runner-hint span { display: block; margin-left: 0; }
   .game-hud { padding-top: var(--space-xs); }
   .game-bottom p { font-size: 10px; }
+}
+
+/* Travel information stays readable without leaving the invitation. */
+.hero-photo figcaption .postcard-time { display: block; grid-column: 1; font-family: var(--font-body); font-size: 13px; letter-spacing: .04em; margin-top: 6px; color: var(--color-accent); }
+.location-layout { gap: 36px 85px; }
+.venue-map-block, .travel-section { grid-column: 1 / -1; min-width: 0; }
+#venue-map { display: block; border: var(--rule); width: 100%; height: 380px; background: var(--color-paper); }
+.venue-map-block .location-actions { justify-content: center; gap: 12px; margin-top: 18px; }
+.map-help, .travel-note { font-size: 11px; line-height: 1.9; color: var(--color-muted); text-align: center; margin-top: 16px; }
+.travel-title { font-family: var(--font-display); font-size: 24px; font-weight: 400; margin-bottom: 24px; }
+.travel-guide { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 48px; text-align: left; }
+.travel-guide article { border-top: var(--rule); padding-top: 18px; }
+.travel-guide h3 { font-family: var(--font-display); font-size: 19px; font-weight: 400; margin-bottom: 12px; color: var(--color-accent); }
+.travel-guide p { font-size: 13px; line-height: 1.9; color: var(--color-muted); word-break: keep-all; }
+.travel-guide p + p { margin-top: 8px; }
+.travel-note { margin-top: 28px; }
+.travel-note a { text-underline-offset: 4px; text-decoration: underline; }
+.jump-controls { text-align: center; margin-top: 22px; }
+#jump-game { min-width: 160px; min-height: 50px; font-size: 14px; }
+.jump-controls .runner-hint { margin-top: 12px; }
+@media (max-width: 600px) {
+  .location-layout { gap: 28px; }
+  #venue-map { height: 300px; }
+  .travel-guide { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .travel-guide p { font-size: 12px; }
+  .travel-title { margin-top: 12px; }
+  .map-help, .travel-note { font-size: 10px; }
 }

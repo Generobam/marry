@@ -7,6 +7,7 @@ export function startRunner(canvas, weddingDate) {
   const p = getPalette();
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const pauseButton = document.querySelector('#pause-game');
+  const jumpButton = document.querySelector('#jump-game');
   const status = document.querySelector('#game-status');
   const stage = document.querySelector('#game-stage');
   const frameElement = document.querySelector('.game-frame');
@@ -23,6 +24,7 @@ export function startRunner(canvas, weddingDate) {
     pauseButton.setAttribute('aria-label', paused ? '애니메이션 재생' : '애니메이션 일시정지');
     pauseButton.setAttribute('aria-pressed', String(paused));
     pauseButton.disabled = arrived;
+    jumpButton.disabled = arrived;
     const current = arrived ? 'arrived' : paused ? 'paused' : state.slowRemaining > 0 ? 'slowed' : 'running';
     if (current === visualState) return;
     visualState = current; frameElement.dataset.motion = current;
@@ -124,12 +126,7 @@ export function startRunner(canvas, weddingDate) {
     schedule();
   }
   pauseButton.addEventListener('click', () => { paused = !paused; updateControls(); draw(); schedule(); });
-  canvas.addEventListener('click', jump);
-  document.addEventListener('keydown', event => {
-    if (!visible || event.repeat || event.altKey || event.ctrlKey || event.metaKey || document.querySelector('dialog[open]')) return;
-    if (event.target.closest('button,a,input,textarea,select,[contenteditable]')) return;
-    if (event.target === canvas && (event.code === 'Space' || event.code === 'Enter')) { event.preventDefault(); jump(); }
-  });
+  jumpButton.addEventListener('click', jump);
   document.addEventListener('visibilitychange', () => { checkWedding(); schedule(); });
   document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('close', schedule));
   motion.addEventListener('change', event => { if (event.matches) { paused = true; updateControls(); draw(); } });
