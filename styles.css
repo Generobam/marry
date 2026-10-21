@@ -217,3 +217,24 @@ dialog input { width: 100%; padding: 10px; border: var(--rule); background: var(
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .button:active { transform: none; }
 }
+
+/* Photo edition: an upright album print, with the original image ratio intact. */
+.hero:has(.hero-photo) { padding-top: var(--space-2xl); gap: var(--space-xl) 64px; }
+.hero-photo { width: 100%; max-width: 400px; justify-self: end; padding: var(--space-md); transform: none; background: var(--color-paper); box-shadow: none; }
+.hero-photo::before, .hero-photo::after { content: none; }
+.hero-photo .postcard-top { padding-bottom: var(--space-sm); }
+.wedding-photo { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; }
+.hero-photo figcaption { margin: var(--space-md) var(--space-xs) 0; }
+.hero-photo .postcard-heart { font-size: 30px; }
+@media (max-width: 800px) {
+  .hero:has(.hero-photo) { gap: var(--space-xl); }
+}
+@media (max-width: 600px) {
+  .hero:has(.hero-photo) { padding-top: var(--space-lg); gap: var(--space-xl); }
+  .hero-photo { grid-row: 1; width: 100%; max-width: 380px; justify-self: center; padding: var(--space-sm); margin: 0; transform: none; }
+  .hero-photo .postcard-top { padding: 0 var(--space-xs) var(--space-xs); }
+  .hero-photo figcaption { margin: var(--space-sm) var(--space-sm) var(--space-xs); }
+  .hero-photo figcaption strong { font-size: 23px; }
+  .hero:has(.hero-photo) .hero-copy { padding: var(--space-sm) var(--space-xs) 0; }
+  .hero:has(.hero-photo) .hero-copy .eyebrow { margin-bottom: var(--space-md); }
+}
