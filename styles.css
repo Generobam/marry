@@ -238,3 +238,91 @@ dialog input { width: 100%; padding: 10px; border: var(--rule); background: var(
   .hero:has(.hero-photo) .hero-copy { padding: var(--space-sm) var(--space-xs) 0; }
   .hero:has(.hero-photo) .hero-copy .eyebrow { margin-bottom: var(--space-md); }
 }
+
+/* Album: real media, with a native dialog for keyboard and touch navigation. */
+.album-section { border-top: var(--rule); }
+.album-heading { display: flex; justify-content: space-between; align-items: end; gap: var(--space-xl); margin-bottom: var(--space-xl); }
+.album-heading h2 { margin-top: var(--space-md); }
+.album-heading > p { font-size: var(--text-sm); line-height: 2; color: var(--color-muted); }
+.album-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-md); align-items: start; }
+.album-grid[data-count="1"] { grid-template-columns: minmax(0, 420px); justify-content: center; }
+.album-item { position: relative; display: block; width: 100%; padding: 0; border: 0; background: var(--color-paper-2); color: var(--color-ink); text-align: left; overflow: clip; }
+.album-item > img, .album-item > video { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.album-item > video { pointer-events: none; }
+.album-item-caption { display: block; padding: var(--space-md); font-family: var(--font-display); font-size: var(--text-base); }
+.album-item-badge { position: absolute; bottom: 76px; right: var(--space-md); background: var(--color-paper); color: var(--color-ink); padding: var(--space-sm) 12px; border-radius: var(--radius-sm); font-size: var(--text-xs); white-space: nowrap; }
+.album-item:hover .album-item-caption { color: var(--color-rose); }
+.album-item:active { opacity: .8; }
+.album-item.media-unavailable { min-height: 240px; display: flex; align-items: end; }
+.album-hint, .album-empty { text-align: center; font-size: var(--text-xs); color: var(--color-muted); margin-top: var(--space-lg); }
+body.album-open { position: fixed; width: 100%; top: var(--album-scroll-top); }
+.album-dialog { width: min(960px, calc(100% - 32px)); max-width: none; max-height: calc(100dvh - 32px); padding: 0; border: var(--rule); border-radius: var(--radius-sm); overflow: auto; overscroll-behavior: contain; }
+.album-dialog::backdrop { background: color-mix(in srgb, var(--color-ink) 85%, transparent); }
+.album-lightbox { padding: var(--space-md) var(--space-lg); }
+.lightbox-header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md); }
+.album-dialog h2 { font-size: var(--text-lg); margin: 0; }
+.album-viewport { height: clamp(180px, calc(100dvh - 250px), 680px); display: grid; place-items: center; overflow: auto; overscroll-behavior: contain; touch-action: pan-y pinch-zoom; background: var(--color-paper-2); }
+.lightbox-image, .lightbox-video { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
+.lightbox-image { cursor: zoom-in; }
+.album-viewport.is-zoomed { display: block; touch-action: auto; }
+.album-viewport.is-zoomed .lightbox-image { width: 200%; max-width: none; max-height: none; cursor: zoom-out; }
+.lightbox-caption { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); min-height: 52px; }
+.lightbox-caption p { margin: 0; font-family: var(--font-display); font-size: var(--text-base); }
+.lightbox-caption button { flex-shrink: 0; }
+.lightbox-nav { display: flex; align-items: center; justify-content: center; gap: var(--space-lg); }
+#album-count { min-width: 64px; text-align: center; font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.album-dialog .album-feedback { color: var(--color-rose); font-size: var(--text-sm); margin-block: var(--space-sm); }
+
+/* The map follows the calendar; the landscape beneath it keeps moving. */
+.journey-panel { border: var(--rule); border-bottom: 0; padding: var(--space-lg) var(--space-xl) var(--space-md); background: var(--color-paper-2); }
+.journey-heading { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-md); }
+.journey-heading h3 { font-family: var(--font-display); font-size: 22px; font-weight: 400; }
+#journey-time { font-size: var(--text-xs); font-variant-numeric: tabular-nums; color: var(--color-muted); }
+.journey-map { display: block; width: 100%; max-width: 760px; margin: var(--space-lg) auto 0; overflow: visible; }
+.map-hill { fill: var(--color-hill-back); opacity: .4; }
+.map-road { fill: none; stroke: var(--color-line); stroke-width: 8; stroke-linecap: round; }
+.map-covered { stroke: var(--color-grass); stroke-width: 8; stroke-linecap: round; }
+.map-ticks { stroke: var(--color-paper); stroke-width: 3; }
+.map-hotel { fill: var(--color-white); stroke: var(--color-ground); stroke-width: 1; }
+.map-roof { fill: var(--color-peach); }
+.map-windows { fill: var(--color-ground); stroke: none; }
+.map-label { font-family: var(--font-body); font-size: 12px; fill: var(--color-muted); }
+.map-today { font-family: var(--font-body); font-size: 11px; fill: var(--color-accent); }
+.journey-note { font-size: var(--text-xs); text-align: center; color: var(--color-muted); margin-top: var(--space-xs); }
+.game-hud { padding-top: var(--space-sm); }
+.game-hud .icon-button { border: 0; height: 44px; width: 44px; font-family: var(--font-body); }
+.game-hud .hud-heart { width: 44px; }
+.game-frame[data-motion="slowed"] #game-stage { color: var(--color-rose); }
+.runner-hint { text-align: center; font-size: var(--text-xs); margin-top: var(--space-md); color: var(--color-muted); }
+.runner-hint span { margin-left: var(--space-sm); }
+#runner:focus-visible { outline-offset: -4px; }
+@media (max-width: 768px) {
+  .album-heading { display: block; }
+  .album-heading > p { margin-top: var(--space-md); }
+  .album-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .album-heading { text-align: center; }
+  .album-heading > p { font-size: 12px; }
+  .album-grid { gap: var(--space-sm); }
+  .album-item-caption { padding: 12px; font-size: 12px; }
+  .album-item-badge { bottom: 56px; right: var(--space-sm); padding: var(--space-xs) var(--space-sm); font-size: 9px; }
+  .album-grid[data-count="1"] .album-item-caption { font-size: var(--text-base); padding: var(--space-md); }
+  .album-grid[data-count="1"] .album-item-badge { bottom: 76px; }
+  .album-dialog { width: calc(100% - 16px); max-height: calc(100dvh - 16px); }
+  .album-lightbox { padding: 12px; }
+  .album-viewport { height: calc(100dvh - 228px); min-height: 160px; }
+  .lightbox-caption p { font-size: var(--text-sm); }
+  .journey-panel { padding: var(--space-lg) 12px var(--space-md); }
+  .journey-heading { display: block; text-align: center; }
+  .journey-heading h3 { font-size: 20px; }
+  #journey-time { margin-top: var(--space-xs); font-size: 10px; }
+  .journey-map { margin-top: var(--space-xl); }
+  .map-label { font-size: 20px; }
+  .map-today { font-size: 18px; }
+  .journey-note { font-size: 9px; margin-top: var(--space-sm); }
+  .runner-hint { font-size: 10px; }
+  .runner-hint span { display: block; margin-left: 0; }
+  .game-hud { padding-top: var(--space-xs); }
+  .game-bottom p { font-size: 10px; }
+}

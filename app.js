@@ -1,6 +1,9 @@
 import { wedding } from './wedding-config.js';
 import { countdownTo, koreaDateParts, calendarCells, createCalendarEvent } from './date-utils.js';
 import { startRunner } from './runner.js';
+import { startJourney } from './journey.js';
+import { startAlbum } from './album.js';
+import { album } from './album-config.js';
 
 const $ = selector => document.querySelector(selector);
 const fill = (selector, value) => document.querySelectorAll(selector).forEach(node => { node.textContent=value; });
@@ -93,4 +96,6 @@ $('#share-invitation').addEventListener('click',async()=>{
   await copyText(url.href,'청첩장 링크를 복사했어요.');
 });
 $('#share-dialog').addEventListener('click',event=>{if(event.target===$('#share-dialog'))$('#share-dialog').close();});
-startRunner($('#runner'));
+startAlbum(album);
+startJourney(wedding.date);
+startRunner($('#runner'), wedding.date);

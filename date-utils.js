@@ -9,6 +9,19 @@ export function koreaDateParts(date) {
   return Object.fromEntries(parts.filter(part => part.type !== 'literal').map(part => [part.type, Number(part.value)]));
 }
 
+export function weddingJourney(target, now = Date.now()) {
+  const end = new Date(target).getTime();
+  const start = new Date(end);
+  start.setUTCFullYear(start.getUTCFullYear() - 1);
+  const ratio = Math.max(0, Math.min(1, (now - start.getTime()) / (end - start.getTime())));
+  const localDay = value => {
+    const { year, month, day } = koreaDateParts(value);
+    return Date.UTC(year, month - 1, day);
+  };
+  const days = Math.max(0, Math.round((localDay(end) - localDay(now)) / 86400000));
+  return { ratio, days, arrived: now >= end, start: start.getTime() };
+}
+
 export function calendarCells(year, month) {
   const offset = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
   const length = new Date(Date.UTC(year, month, 0)).getUTCDate();

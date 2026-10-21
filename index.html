@@ -49,6 +49,12 @@
         <div class="letter-sign"><span data-groom>노지성</span><span class="name-heart" aria-hidden="true">&</span><span data-bride>이지연</span><span>드림</span></div>
       </div>
     </section>
+    <section id="album" class="album-section shell section-pad" aria-labelledby="album-title">
+      <div class="album-heading"><div><p class="eyebrow">MOMENTS WE KEEP</p><h2 id="album-title">우리의 순간들</h2></div><p>함께 웃고, 서로를 바라보던 시간.<br>오래도록 간직하고 싶은 우리의 장면들입니다.</p></div>
+      <div class="album-grid" id="album-grid"></div>
+      <p class="album-empty" id="album-empty" hidden>함께한 순간들을 차곡차곡 담고 있어요.</p>
+      <p class="album-hint">사진을 누르면 더 크게 볼 수 있어요.</p>
+    </section>
     <section id="wedding-day" class="day-section shell section-pad" aria-labelledby="day-title">
       <div class="day-intro"><p class="eyebrow">THE DAY WE SAY “I DO”</p><h2 id="day-title">우리의 날</h2><p class="day-full" data-date-label>2027년 6월 12일 토요일 오전 11시</p><p class="muted">초여름의 싱그러움이 가득한 날,<br>기쁜 마음으로 기다리겠습니다.</p><button class="text-button" id="calendar-save" type="button"><span aria-hidden="true">＋</span> 달력에 일정 저장</button></div>
       <div class="calendar-wrap"><div class="calendar-heading"><strong id="calendar-month">June</strong><span id="calendar-year">2027</span></div><table class="calendar" aria-label="2027년 6월 예식일 달력"><thead><tr><th scope="col">일</th><th scope="col">월</th><th scope="col">화</th><th scope="col">수</th><th scope="col">목</th><th scope="col">금</th><th scope="col">토</th></tr></thead><tbody id="calendar-body"></tbody></table></div>
@@ -56,15 +62,38 @@
     </section>
     <section id="location" class="location-section section-pad" aria-labelledby="location-title"><div class="location-layout shell"><div><p class="eyebrow">COME CELEBRATE WITH US</p><h2 id="location-title">마음이 만나는 곳</h2></div><div class="location-details"><div class="venue-icon" aria-hidden="true">⌂</div><h3 id="venue-name">엘리에나 호텔 서울 강남</h3><p id="venue-hall" hidden></p><p id="venue-address">서울특별시 강남구 논현로 645</p><p id="venue-transport" hidden></p><div class="location-actions" id="location-actions" hidden><a class="button button-outline" id="map-link" target="_blank" rel="noopener noreferrer">지도 보기 ↗</a><button class="text-button" id="copy-address" type="button">주소 복사</button></div></div></div></section>
     <section id="adventure" class="adventure-section section-pad" aria-labelledby="adventure-title">
-      <div class="shell"><div class="game-heading"><div><p class="eyebrow">TWO PLAYERS. ONE ADVENTURE.</p><h2 id="adventure-title">어떤 길이든, 함께라면</h2></div><p>작은 턱도, 커다란 웅덩이도.<br>둘이 함께라면 폴짝 넘어갈 수 있죠.</p></div>
-        <div class="game-frame"><div class="game-hud"><span><span class="hud-heart" aria-hidden="true">♥ ♥</span> <span class="hud-label">1P + 2P</span></span><span id="game-stage">ON OUR WAY</span><span id="game-progress">0%</span></div><canvas id="runner" width="960" height="320" aria-label="신랑과 신부가 꽃밭의 돌과 웅덩이를 뛰어넘어 식장에 도착하는 애니메이션">신랑과 신부가 함께 장애물을 넘어 식장으로 달려가는 모습입니다.</canvas><div class="game-bottom"><p id="game-status" role="status">손을 꼭 잡고 식장으로 가는 중!</p><span class="auto-badge" id="auto-label">AUTO PLAY</span></div></div>
-        <div class="game-controls"><p>화면을 톡 누르면, 둘이 함께 점프!<br><span>키보드에서는 스페이스 키로 함께해요.</span></p><div class="game-buttons"><button id="pause-game" class="icon-button" type="button" aria-label="애니메이션 일시정지" aria-pressed="false">Ⅱ</button><button id="jump-game" class="button" type="button"><span aria-hidden="true">↑</span> 함께 점프</button></div></div>
+      <div class="shell"><div class="game-heading"><div><p class="eyebrow">TWO PLAYERS. ONE ADVENTURE.</p><h2 id="adventure-title">어떤 길이든, 함께라면</h2></div><p>가끔은 걸려 넘어지고, 조금 느려져도.<br>우리의 날을 향해 함께 가고 있어요.</p></div>
+        <div class="journey-panel">
+          <div class="journey-heading"><h3 id="journey-title">우리의 시작까지</h3><p id="journey-time" aria-label="예식까지 남은 시간"></p></div>
+          <svg id="journey-map" class="journey-map" viewBox="0 0 600 112" role="img" aria-label="결혼식까지의 시간 지도">
+            <path class="map-hill" d="M8 65Q55 20 102 65M210 65Q255 30 300 65M410 65Q450 20 500 65"/>
+            <path class="map-road" d="M34 65H566"/>
+            <line id="journey-covered" class="map-covered" x1="34" y1="65" x2="34" y2="65"/>
+            <path class="map-ticks" d="M34 61v8M212 61v8M390 61v8M566 61v8"/>
+            <g class="map-hotel" transform="translate(550 10)" aria-hidden="true"><path d="M0 7h33v48H0z"/><path class="map-roof" d="M-3 2h39v7H-3z"/><path class="map-windows" d="M6 16h6v7H6zM21 16h6v7h-6zM6 29h6v7H6zM21 29h6v7h-6zM13 43h8v12h-8z"/></g>
+            <g id="journey-couple" aria-hidden="true"></g>
+            <text id="journey-today" class="map-today" x="65" y="17" text-anchor="middle">지금 우리</text>
+            <text class="map-label" x="34" y="94" text-anchor="start">1년 전</text><text class="map-label" x="212" y="94" text-anchor="middle">8개월 전</text><text class="map-label" x="390" y="94" text-anchor="middle">4개월 전</text><text class="map-label" x="566" y="94" text-anchor="end">결혼식</text>
+          </svg>
+          <p class="journey-note">날짜가 가까워질수록, 지도 속 우리도 한 걸음 더.</p>
+        </div>
+        <div class="game-frame"><div class="game-hud"><span class="hud-heart" aria-hidden="true">♥ ♥</span><span id="game-stage">ON OUR WAY</span><button id="pause-game" class="icon-button" type="button" aria-label="애니메이션 일시정지" aria-pressed="false">Ⅱ</button></div><canvas id="runner" width="960" height="320" role="button" tabindex="0" aria-label="함께 점프하기. 화면을 누르거나 스페이스 키를 누르면 신랑과 신부가 장애물을 뛰어넘어요.">두 사람이 장애물을 넘고, 가끔 부딪혀 잠시 느려져도 계속 함께 달려가는 모습입니다.</canvas><div class="game-bottom"><p id="game-status">하루하루, 우리의 날을 향해 함께 달려요.</p><span class="auto-badge">TOGETHER</span></div></div>
+        <p class="runner-hint">화면을 톡 누르면 함께 점프해요. <span>키보드에서는 스페이스 키.</span></p>
       </div>
     </section>
   </main>
   <footer class="footer shell"><span class="footer-heart" aria-hidden="true">♡</span><h2>우리의 모험을<br>축복해 주셔서 감사합니다.</h2><p><span data-groom>노지성</span> <span class="name-heart">&</span> <span data-bride>이지연</span></p><button class="text-button share-button" id="share-invitation" type="button">청첩장 공유하기 <span aria-hidden="true">↗</span></button><div class="footer-meta"><span>MADE WITH LOVE, FOR OUR NEXT CHAPTER</span><span data-numeric-date>2027. 06. 12</span></div></footer>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <dialog id="share-dialog"><form method="dialog"><button class="dialog-close icon-button" aria-label="닫기">×</button><h2>청첩장 링크</h2><p>아래 주소를 복사해 소중한 분께 전해 주세요.</p><input id="share-url" type="text" readonly aria-label="청첩장 주소"><button class="button" value="close">닫기</button></form></dialog>
-  <noscript><p class="noscript">날짜는 2027년 6월 12일 오전 11시입니다. 디데이와 애니메이션을 보려면 JavaScript를 켜 주세요.</p></noscript>
+  <dialog id="album-dialog" class="album-dialog" aria-labelledby="album-dialog-title">
+    <div class="album-lightbox">
+      <header class="lightbox-header"><h2 id="album-dialog-title">우리의 순간들</h2><button id="album-close" class="icon-button" type="button" aria-label="앨범 닫기">×</button></header>
+      <div id="album-viewport" class="album-viewport"></div>
+      <p id="album-feedback" class="album-feedback" role="status" hidden></p>
+      <div class="lightbox-caption"><p id="album-caption"></p><button id="album-zoom" type="button" class="text-button" aria-pressed="false">확대 ＋</button></div>
+      <nav class="lightbox-nav" aria-label="앨범 사진 이동"><button id="album-prev" class="icon-button" type="button" aria-label="이전 사진 또는 영상">←</button><span id="album-count" role="status" aria-live="polite"></span><button id="album-next" class="icon-button" type="button" aria-label="다음 사진 또는 영상">→</button></nav>
+    </div>
+  </dialog>
+  <noscript><p class="noscript">날짜는 2027년 6월 12일 오전 11시입니다. 앨범·디데이·애니메이션을 보려면 JavaScript를 켜 주세요.</p></noscript>
 </body>
 </html>

@@ -1,165 +1,144 @@
 import { getPalette, drawCharacter, drawHeart } from './pixel-art.js';
+import { createRunnerState, obstaclesBetween, characterLift, runnerSpeed, stepRunner, requestJump, RUN_SPEED, SLOW_DURATION } from './runner-model.js';
 
-export const COURSE_LENGTH = 2240;
-export const OBSTACLES = [{ x: 350, type: 'rock' }, { x: 720, type: 'puddle' }, { x: 1080, type: 'flowers' }, { x: 1480, type: 'rock' }, { x: 1850, type: 'puddle' }];
-
-export function obstacleJump(position) {
-  let lift = 0;
-  for (const obstacle of OBSTACLES) {
-    const distance = obstacle.x - position;
-    if (distance < 105 && distance > -70) lift = Math.max(lift, Math.sin((105 - distance) / 175 * Math.PI) * 82);
-  }
-  return lift;
-}
-
-export function startRunner(canvas) {
+export function startRunner(canvas, weddingDate) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
   const p = getPalette();
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const pauseButton = document.querySelector('#pause-game');
-  const jumpButton = document.querySelector('#jump-game');
   const status = document.querySelector('#game-status');
   const stage = document.querySelector('#game-stage');
-  const progressLabel = document.querySelector('#game-progress');
-  const autoLabel = document.querySelector('#auto-label');
-  let paused = motion.matches;
-  let visible = false;
-  let width = 960; let height = 300;
-  let progress = 0; let elapsed = 0; let finishTime = null;
-  let manualJumpAt = -100; let last = 0; let animationId = 0;
-  const rect = (x,y,w,h,color) => { ctx.fillStyle = p[color]; ctx.fillRect(Math.round(x),Math.round(y),w,h); };
+  const frameElement = document.querySelector('.game-frame');
+  const state = createRunnerState();
+  let paused = motion.matches; let visible = false;
+  let width = 960; let height = 300; let last = 0; let animationId = 0;
+  let arrived = Date.now() >= new Date(weddingDate).getTime();
+  let visualState = '';
+  const rect = (x, y, w, h, color) => { ctx.fillStyle = p[color]; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
+  const scale = () => width < 600 ? 2 : 2.7;
 
   function updateControls() {
     pauseButton.textContent = paused ? '▷' : 'Ⅱ';
     pauseButton.setAttribute('aria-label', paused ? '애니메이션 재생' : '애니메이션 일시정지');
     pauseButton.setAttribute('aria-pressed', String(paused));
-    autoLabel.textContent = paused ? 'PAUSED' : 'AUTO PLAY';
-    if (finishTime === null) status.textContent = paused ? '잠시 쉬어가요. 재생을 누르면 출발해요.' : '손을 꼭 잡고 식장으로 가는 중!';
+    pauseButton.disabled = arrived;
+    const current = arrived ? 'arrived' : paused ? 'paused' : state.slowRemaining > 0 ? 'slowed' : 'running';
+    if (current === visualState) return;
+    visualState = current; frameElement.dataset.motion = current;
+    const messages = {
+      paused: ['잠시 쉬어가요. 재생을 누르면 이어 달려요.', 'TAKE A BREATH'],
+      arrived: ['드디어, 우리의 시작. 함께해 주셔서 감사합니다.', 'JUST MARRIED'],
+      slowed: ['잠깐 삐끗해도 괜찮아. 우리 함께 가자!', 'SLOW & TOGETHER'],
+      running: ['하루하루, 우리의 날을 향해 함께 달려요.', 'ON OUR WAY'],
+    };
+    [status.textContent, stage.textContent] = messages[current];
   }
-
-  function cloud(x,y,size=1) {
-    rect(x,y,48*size,10*size,'cloud'); rect(x+9*size,y-9*size,28*size,9*size,'cloud');
+  function cloud(x, y, size = 1) {
+    rect(x, y, 48 * size, 10 * size, 'cloud'); rect(x + 9 * size, y - 9 * size, 28 * size, 9 * size, 'cloud');
   }
-  function flower(x,y,color='flower') {
-    rect(x+3,y+4,2,10,'grass'); rect(x,y+8,3,2,'grass');
-    rect(x+1,y,6,6,color); rect(x-1,y+2,10,2,color); rect(x+3,y+2,2,2,'gold');
+  function flower(x, y, color = 'flower') {
+    rect(x + 3, y + 4, 2, 10, 'grass'); rect(x, y + 8, 3, 2, 'grass');
+    rect(x + 1, y, 6, 6, color); rect(x - 1, y + 2, 10, 2, color); rect(x + 3, y + 2, 2, 2, 'gold');
   }
-  function hill(x,y,w,h,color) {
-    ctx.fillStyle=p[color]; ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo(x+w/2,y-h,x+w,y); ctx.closePath(); ctx.fill();
+  function hill(x, y, w, h, color) {
+    ctx.fillStyle = p[color]; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + w / 2, y - h, x + w, y); ctx.closePath(); ctx.fill();
   }
-  function chapel(x,floor) {
-    rect(x+14,floor-100,92,100,'white'); rect(x+25,floor-112,70,12,'peach');
-    rect(x+37,floor-124,46,12,'peach'); rect(x+49,floor-137,22,13,'rose');
-    rect(x+56,floor-153,6,20,'gold'); rect(x+50,floor-148,18,5,'gold');
-    rect(x+48,floor-39,26,39,'ground'); rect(x+53,floor-45,16,6,'ground');
-    rect(x+28,floor-76,14,23,'sky'); rect(x+79,floor-76,14,23,'sky');
-    rect(x+34,floor-76,2,23,'ground'); rect(x+85,floor-76,2,23,'ground');
-    rect(x+28,floor-66,14,2,'ground'); rect(x+79,floor-66,14,2,'ground');
-    flower(x+6,floor-14); flower(x+107,floor-14);
-    ctx.fillStyle=p.accent; ctx.font='10px monospace'; ctx.textAlign='center'; ctx.fillText('JUST MARRIED',x+60,floor-166);
+  function hall(x, floor) {
+    // A small hotel wedding hall rather than a finish line that resets the scene.
+    rect(x, floor - 110, 95, 110, 'white'); rect(x - 5, floor - 116, 105, 8, 'peach');
+    rect(x + 35, floor - 38, 26, 38, 'ground'); rect(x + 39, floor - 43, 18, 5, 'ground');
+    for (const wx of [12, 39, 66]) for (const wy of [96, 65]) {
+      rect(x + wx, floor - wy, 15, 19, 'sky'); rect(x + wx + 6, floor - wy, 2, 19, 'ground');
+    }
+    flower(x - 8, floor - 14); flower(x + 98, floor - 14);
+    drawHeart(ctx, p, x + 40, floor - 137, 2);
   }
-
+  function obstacleArt(obstacle, x, floor) {
+    if (obstacle.type === 'puddle') {
+      rect(x - 22, floor - 2, 44, 7, 'suit'); rect(x - 16, floor, 27, 2, 'sky');
+    } else if (obstacle.type === 'rock') {
+      rect(x - 16, floor - 12, 32, 12, 'muted'); rect(x - 10, floor - 20, 19, 8, 'muted'); rect(x - 7, floor - 17, 9, 4, 'line');
+    } else if (obstacle.type === 'block') {
+      rect(x - 16, floor - 30, 32, 30, 'soil'); rect(x - 13, floor - 27, 26, 24, 'peach');
+      rect(x - 13, floor - 16, 26, 2, 'soil'); rect(x, floor - 27, 2, 11, 'soil'); rect(x - 7, floor - 14, 2, 11, 'soil');
+    } else {
+      rect(x - 13, floor - 23, 26, 23, 'accent'); rect(x - 17, floor - 30, 34, 9, 'grass');
+      rect(x - 9, floor - 21, 4, 19, 'hill-front'); flower(x - 4, floor - 43);
+    }
+  }
   function draw() {
-    ctx.clearRect(0,0,width,height);
-    rect(0,0,width,height,'sky');
-    const floor = height-35;
-    const scale = width < 600 ? 2 : 2.7;
-    const runnerX = Math.max(74,width*.23);
-    const spacing = scale*23;
-    for (let i=-1;i<width/170+2;i++) {
-      const x=i*170-(progress*.12%170);
-      cloud(x+25,40+(Math.abs(i)%3)*20,.85);
-      hill(x-50,floor,300,140,'hill-back');
+    ctx.clearRect(0, 0, width, height); rect(0, 0, width, height, 'sky');
+    const floor = height - 35; const unit = scale(); const center = Math.max(94, width * .25);
+    const spacing = unit * 23; const scroll = state.distance;
+    for (let i = -1; i < width / 170 + 2; i++) {
+      const x = i * 170 - (scroll * .12 % 170);
+      cloud(x + 25, 35 + (Math.abs(i) % 3) * 20, .85); hill(x - 50, floor, 300, 140, 'hill-back');
     }
-    for (let i=-1;i<width/210+2;i++) hill(i*210-(progress*.27%210)-50,floor,280,85,'hill-front');
-    rect(0,floor,width,7,'grass'); rect(0,floor+7,width,28,'ground');
-    for (let x=-progress%30;x<width;x+=30) { rect(x,floor+7,14,3,'soil'); rect(x+8,floor+20,4,3,'soil'); }
-    for (let i=-1;i<width/82+2;i++) flower(i*82-(progress*.7%82),floor-14,i%2?'white':'flower');
-    for (const obstacle of OBSTACLES) {
-      const x=obstacle.x-progress+runnerX;
-      if (x < -70 || x > width+70) continue;
-      if (obstacle.type==='puddle') {
-        rect(x-12,floor,46,5,'suit'); rect(x-6,floor+1,30,2,'sky');
-      } else if (obstacle.type==='rock') {
-        rect(x-7,floor-12,28,12,'muted'); rect(x-1,floor-20,15,8,'muted'); rect(x+1,floor-18,7,4,'line');
-      } else { rect(x-8,floor-15,28,15,'ground'); flower(x-6,floor-30); flower(x+6,floor-25,'white'); }
+    for (let i = -1; i < width / 210 + 2; i++) hill(i * 210 - (scroll * .27 % 210) - 50, floor, 280, 85, 'hill-front');
+    rect(0, floor, width, 7, 'grass'); rect(0, floor + 7, width, 28, 'ground');
+    for (let x = -scroll % 30; x < width; x += 30) { rect(x, floor + 7, 14, 3, 'soil'); rect(x + 8, floor + 20, 4, 3, 'soil'); }
+    for (let i = -1; i < width / 82 + 2; i++) flower(i * 82 - (scroll * .7 % 82), floor - 14, i % 2 ? 'white' : 'flower');
+    const obstacles = obstaclesBetween(scroll - center - 50, scroll + width + 100);
+    if (!arrived) for (const obstacle of obstacles) obstacleArt(obstacle, obstacle.x - scroll + center, floor);
+    else hall(Math.max(center + 44, width * .6), floor);
+    const speed = runnerSpeed(state) / RUN_SPEED;
+    const frame = !paused && !arrived ? (Math.floor(state.distance / 8) % 2) * 2 - 1 : 0;
+    const stumble = Math.max(0, state.slowRemaining - (SLOW_DURATION - .45));
+    const bounce = Math.sin(stumble / .45 * Math.PI) * 12;
+    const groomLift = arrived ? 0 : Math.max(characterLift(state, scroll, obstacles), bounce);
+    const brideLift = arrived ? 0 : Math.max(characterLift(state, scroll - spacing, obstacles), bounce);
+    ctx.fillStyle = p.grass; ctx.globalAlpha = .3;
+    [center, center - spacing].forEach(x => { ctx.beginPath(); ctx.ellipse(x, floor + 1, unit * 8, 3, 0, 0, Math.PI * 2); ctx.fill(); }); ctx.globalAlpha = 1;
+    drawCharacter(ctx, p, center - spacing - unit * 8, floor, unit, true, -frame, brideLift);
+    drawCharacter(ctx, p, center - unit * 8, floor, unit, false, frame, groomLift);
+    if (stumble > 0) {
+      const y = floor - 24 * unit - 16;
+      rect(center - 8, y, 3, 9, 'gold'); rect(center - 11, y + 3, 9, 3, 'gold');
+      rect(center - spacing + 8, y - 6, 3, 9, 'gold'); rect(center - spacing + 5, y - 3, 9, 3, 'gold');
     }
-    const chapelX = COURSE_LENGTH-progress+runnerX+47;
-    chapel(chapelX,floor);
-    const walking = !paused && finishTime===null;
-    const frame = walking ? (Math.floor(elapsed*9)%2)*2-1 : 0;
-    const manualPhase=(elapsed-manualJumpAt)/.95;
-    const manualLift=manualPhase>=0&&manualPhase<=1?Math.sin(manualPhase*Math.PI)*88:0;
-    const liftGroom=Math.max(obstacleJump(progress),manualLift);
-    const liftBride=Math.max(obstacleJump(progress-spacing),manualLift);
-    // Shadows stay on the ground so the jumps have a clear sense of height.
-    ctx.fillStyle=p.grass; ctx.globalAlpha=.3;
-    [runnerX,runnerX-spacing].forEach(x=>{ctx.beginPath();ctx.ellipse(x+scale*8,floor+1,scale*8,3,0,0,Math.PI*2);ctx.fill();});
-    ctx.globalAlpha=1;
-    drawCharacter(ctx,p,runnerX-spacing,floor,scale,true,-frame,liftBride);
-    drawCharacter(ctx,p,runnerX,floor,scale,false,frame,liftGroom);
-    if (manualLift > 10) drawHeart(ctx,p,runnerX-spacing/3,floor-24*scale-manualLift-20,1.5);
-    if (finishTime!==null) {
-      for(let i=0;i<5;i++) {
-        const drift=((elapsed-finishTime)*22+i*17)%85;
-        ctx.globalAlpha=1-drift/110;
-        drawHeart(ctx,p,runnerX-40+i*23,floor-78-drift,i%2?1.5:2);
-      }
-      ctx.globalAlpha=1;
+    if (speed < .8 && !arrived) {
+      rect(center - spacing - 27, floor - 6, 7, 4, 'cloud'); rect(center - spacing - 38, floor - 3, 5, 3, 'cloud');
     }
+    if (arrived) drawHeart(ctx, p, center - spacing / 2 - 7, floor - 24 * unit - 23, 2);
   }
-
-  function canAnimate() { return !paused && visible && !document.hidden; }
+  function canAnimate() { return !paused && !arrived && visible && !document.hidden && !document.querySelector('dialog[open]'); }
   function schedule() {
-    if (canAnimate() && !animationId) { last=0; animationId=requestAnimationFrame(tick); }
+    if (canAnimate() && !animationId) { last = 0; animationId = requestAnimationFrame(tick); }
+  }
+  function checkWedding() {
+    const next = Date.now() >= new Date(weddingDate).getTime();
+    if (arrived !== next) { arrived = next; updateControls(); draw(); schedule(); }
   }
   function tick(timestamp) {
-    animationId=0;
-    if (!canAnimate()) { last=0; return; }
-    const delta=last?Math.min((timestamp-last)/1000,.05):0;
-    last=timestamp; elapsed+=delta;
-    if (finishTime===null) {
-      progress=Math.min(COURSE_LENGTH,progress+delta*78);
-      progressLabel.textContent=`${Math.floor(progress/COURSE_LENGTH*100)}%`;
-      if (progress>=COURSE_LENGTH) {
-        finishTime=elapsed;
-        stage.textContent='HAPPILY EVER AFTER';
-        status.textContent='식장 도착! 이제 우리의 다음 모험으로.';
-        jumpButton.innerHTML='<span aria-hidden="true">↻</span> 다시 달리기';
-      }
-    } else if (elapsed-finishTime>5) reset();
-    draw();
-    animationId=requestAnimationFrame(tick);
-  }
-  function reset() {
-    progress=0; finishTime=null; manualJumpAt=-100;
-    stage.textContent='ON OUR WAY'; progressLabel.textContent='0%';
-    jumpButton.innerHTML='<span aria-hidden="true">↑</span> 함께 점프';
-    updateControls(); draw();
+    animationId = 0;
+    if (!canAnimate()) { last = 0; return; }
+    const delta = last ? Math.min((timestamp - last) / 1000, .05) : 0;
+    last = timestamp; stepRunner(state, delta, scale() * 23); updateControls(); draw();
+    animationId = requestAnimationFrame(tick);
   }
   function jump() {
-    if (finishTime!==null) reset();
-    if(paused) { paused=false; updateControls(); }
-    if(elapsed-manualJumpAt>=.95) manualJumpAt=elapsed;
+    if (arrived) return;
+    requestJump(state);
+    if (paused) { paused = false; updateControls(); }
     schedule();
   }
-  pauseButton.addEventListener('click',()=>{ paused=!paused; updateControls(); if(paused) draw(); schedule(); });
-  jumpButton.addEventListener('click',jump);
-  canvas.addEventListener('click',jump);
-  document.addEventListener('keydown',event=>{
-    if (event.code!=='Space'||event.repeat||!visible||event.altKey||event.ctrlKey||event.metaKey) return;
-    if (event.target.closest('button,a,input,textarea,select,[contenteditable],dialog')) return;
-    event.preventDefault(); jump();
+  pauseButton.addEventListener('click', () => { paused = !paused; updateControls(); draw(); schedule(); });
+  canvas.addEventListener('click', jump);
+  document.addEventListener('keydown', event => {
+    if (!visible || event.repeat || event.altKey || event.ctrlKey || event.metaKey || document.querySelector('dialog[open]')) return;
+    if (event.target.closest('button,a,input,textarea,select,[contenteditable]')) return;
+    if (event.target === canvas && (event.code === 'Space' || event.code === 'Enter')) { event.preventDefault(); jump(); }
   });
-  document.addEventListener('visibilitychange',schedule);
-  motion.addEventListener('change',event=>{ if(event.matches) {paused=true;updateControls();draw();} });
-  const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;schedule();},{threshold:.15});
-  observer.observe(canvas);
-  new ResizeObserver(()=>{
-    const bounds=canvas.getBoundingClientRect();width=bounds.width;height=bounds.height;
-    const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
-    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=false;draw();
+  document.addEventListener('visibilitychange', () => { checkWedding(); schedule(); });
+  document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('close', schedule));
+  motion.addEventListener('change', event => { if (event.matches) { paused = true; updateControls(); draw(); } });
+  new IntersectionObserver(entries => { visible = entries[0].isIntersecting; schedule(); }, { threshold: .15 }).observe(canvas);
+  new ResizeObserver(() => {
+    const bounds = canvas.getBoundingClientRect(); width = bounds.width; height = bounds.height;
+    const dpr = Math.min(devicePixelRatio || 1, 2); canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.imageSmoothingEnabled = false; draw();
   }).observe(canvas);
+  setInterval(checkWedding, 1000);
   updateControls(); draw();
 }
