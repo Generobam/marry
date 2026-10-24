@@ -40,7 +40,7 @@ create index on public.wedding_messages(status, created_at desc);
 create index on public.wedding_rsvps(updated_at desc);
 create index on public.wedding_photos(created_at desc);
 create or replace function public.wedding_take_limit(bucket text, maximum integer)
-returns boolean language plpgsql security definer set search_path=public,pg_temp as $$
+returns boolean language plpgsql security invoker set search_path=public,pg_temp as $$
 declare used integer;
 begin
   delete from public.wedding_rate_limits where expires_at < now();
@@ -51,6 +51,14 @@ end;
 $$;
 revoke all on function public.wedding_take_limit(text,integer) from public,anon,authenticated;
 grant execute on function public.wedding_take_limit(text,integer) to service_role;
+-- The dashboard's automatic-RLS event trigger must not be callable via the Data API.
+do $$
+begin
+  if to_regprocedure('public.rls_auto_enable()') is not null then
+    revoke execute on function public.rls_auto_enable() from public, anon, authenticated;
+  end if;
+end;
+$$;
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
 values('wedding-guest-photos','wedding-guest-photos',false,8388608,array['image/jpeg','image/png','image/webp']);
 commit;

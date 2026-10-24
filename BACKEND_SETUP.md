@@ -1,8 +1,18 @@
 # 실제 저장 서비스 연결
 
-프런트엔드는 기존 GitHub Pages를 유지합니다. 방명록·참석 응답·비공개 하객 사진은 Supabase 프로젝트의 데이터베이스, Storage, Edge Function에 저장합니다. 현재 계정이 연결되지 않아 프로덕션 백엔드는 아직 생성/배포되지 않았습니다.
+프런트엔드는 기존 GitHub Pages를 유지합니다. 방명록·참석 응답·비공개 하객 사진은 Supabase 프로젝트의 데이터베이스, Storage, Edge Function에 저장합니다.
 
-## 연결 순서
+## 현재 배포
+
+- 2026-10-24: `Jiseong & Jiyeon Wedding` 무료 조직의 `marry` 프로젝트, 서울 리전.
+- 프로젝트: `nzzgpsznazmarrzjhslr`, 함수: `wedding-api`.
+- 초기 SQL은 대시보드 SQL Editor에서 적용했습니다. 기존 프로젝트에 초기 SQL을 다시 실행하지 마세요. CLI로 전환할 경우 원격 스키마와 마이그레이션 이력을 먼저 정합화해야 합니다.
+- `wedding-guest-photos`는 비공개이며 최대 8MB입니다. 애플리케이션 테이블 4개 모두 RLS 적용 및 anon/authenticated 직접 접근 차단을 확인했습니다.
+- `WEDDING_RATE_SALT`, `WEDDING_ADMIN_IDS`는 서버 Secrets에만 저장합니다. 관리자 계정은 사용자가 직접 생성했으며 공개 회원가입은 비활성화했습니다.
+- 하객 접수를 위해 함수의 레거시 JWT 검증은 사용자 승인 후 껐습니다. 관리자 경로는 함수 내부에서 Auth 사용자와 UUID 허용 목록을 모두 확인합니다.
+- 공개 URL과 publishable 키만 `participation-config.js`에 설정했습니다. 관리자 로그인: https://generobam.github.io/marry/admin.html
+
+## 새 프로젝트 연결 순서
 
 1. Supabase 계정을 만들고 본인 소유의 새 프로젝트를 생성합니다. 프로젝트 비용/플랜은 계정에서 확인하여 선택하세요.
 2. `supabase/migrations/202610240001_participation.sql`을 프로젝트에 적용합니다. CLI를 쓰는 경우 프로젝트 연결 후 `supabase db push`를 실행합니다. SQL Editor에서 한 번 실행해도 됩니다. 기존 테이블이 없는 새 프로젝트용입니다.
@@ -43,3 +53,5 @@ export const participation = {
 ## 검증 범위
 
 Node 테스트는 실제 Edge handler에 데이터베이스/Storage/Auth 테스트 대역을 연결해 공개/비공개 경계, 비밀번호 삭제, 응답 수정, 업로드 형식, 관리자 권한, 제한 및 페이지 처리를 확인합니다. 이 검사는 실제 Supabase 프로젝트의 배포 확인을 대신하지 않습니다.
+
+2026-10-24 실제 서버에서 방명록 생성·조회·삭제(틀린 비밀번호 거부 포함), 참석 응답 생성·동일 응답 수정, PNG 업로드 및 공개 URL 접근 차단을 확인했습니다. 익명 테이블 직접 조회와 관리자 API 접근은 거부됐고, 청첩장 origin 허용/외부 origin 거부도 확인했습니다.
