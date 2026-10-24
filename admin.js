@@ -28,7 +28,7 @@ function button(label,action){const node=document.createElement('button');node.t
 function paragraph(value){const node=document.createElement('p');node.textContent=value;return node;}
 function render(kind) {
   const list=$(`#admin-${kind}`);list.replaceChildren();const items=kind==='rsvps'?responses:records[kind];
-  if(!items.length){list.append(paragraph('아직 전달받은 내용이 없어요.'));return;}
+  if(!items.length){list.append(paragraph(kind==='album'?'아직 추가한 사진·영상이 없어요. 위에서 첫 사진을 게시해 주세요.':'아직 전달받은 내용이 없어요.'));return;}
   for(const item of items){
     const entry=document.createElement('article');entry.className='admin-entry';
     if(kind==='rsvps')entry.append(paragraph(`${item.name} · ${item.side==='groom'?'신랑 측':'신부 측'} · ${{yes:'참석',no:'불참',maybe:'미정'}[item.attendance]} · 참석 ${item.guests}명 / 식사 ${item.meals}명`),paragraph(item.note));
