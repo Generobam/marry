@@ -3,3 +3,7 @@ node_modules/
 .codebase-memory/
 test-results/
 dist/
+.env
+.env.*
+!.env.example
+supabase/.temp/

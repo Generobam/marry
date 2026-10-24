@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>지성 · 지연 청첩장 관리</title><link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./participation.css"><script type="module" src="./admin.js"></script></head>
+<body><main class="admin-shell"><a class="text-button" href="./">← 청첩장으로</a><h1>우리의 초대 기록</h1><p>방명록, 참석 응답, 하객이 보내준 사진을 확인해요.</p><p id="admin-feedback" class="admin-feedback" role="status"></p>
+<form id="admin-login" class="admin-login"><label>관리자 이메일<input name="email" type="email" autocomplete="username" required></label><label>비밀번호<input name="password" type="password" autocomplete="current-password" required></label><button class="button" type="submit">로그인</button></form>
+<div id="admin-content" hidden><div class="admin-toolbar"><button id="admin-refresh" class="button button-outline" type="button">새로고침</button><button id="admin-export" class="button button-outline" type="button">참석 명단 CSV 저장</button><button id="admin-logout" class="text-button" type="button">로그아웃</button></div>
+<section class="admin-section"><h2>참석 응답</h2><p id="admin-summary" class="admin-summary"></p><div id="admin-rsvps"></div></section>
+<section class="admin-section"><h2>축하 방명록</h2><div id="admin-guestbook"></div><button id="admin-guestbook-more" class="text-button" type="button" hidden>더 불러오기</button></section>
+<section class="admin-section"><h2>전달받은 사진</h2><p class="small-note">사진 링크는 5분 후 만료돼요. 다시 열려면 새로고침해 주세요.</p><div id="admin-photos"></div><button id="admin-photos-more" class="text-button" type="button" hidden>더 불러오기</button></section>
+</div></main></body></html>

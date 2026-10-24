@@ -8,6 +8,14 @@ export const wedding = {
   address: "서울특별시 강남구 논현로 645",
   mapUrl: "",
   transport: "",
+  contacts: [
+    { label: "신랑", name: "노지성", phone: "010-0000-0000", example: true },
+    { label: "신부", name: "이지연", phone: "010-0000-0000", example: true },
+  ],
+  accounts: [
+    { side: "신랑 측", bank: "예시은행", owner: "노지성", number: "000-0000-000000", example: true },
+    { side: "신부 측", bank: "예시은행", owner: "이지연", number: "111-1111-111111", example: true },
+  ],
   travelGuide: [
     { title: "자동차", lines: ["내비게이션에 ‘엘리에나 호텔’ 또는 ‘서울 강남구 논현로 645’를 입력해 주세요.", "호텔 도착 후 주차 안내에 따라 입차해 주세요. 무료 주차 시간과 발렛 비용은 호텔에 확인해 주세요."] },
     { title: "지하철", lines: ["7호선 학동역 4번 출구 · 도보 약 4분", "9호선 언주역 2번 출구 · 도보 약 6~7분"] },

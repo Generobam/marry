@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600&family=Silkscreen&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./participation.css">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
@@ -72,6 +73,10 @@
         <div class="travel-section"><h3 class="travel-title">오시는 길</h3><div id="travel-guide" class="travel-guide"></div><p class="travel-note">도보 시간은 대략적인 안내이며, 버스 노선은 방문 전 지도 앱에서 확인해 주세요.<br><a href="https://app.wisewedding.co.kr/weddinghall/weddinghall_share.asp?code=1366" target="_blank" rel="noopener noreferrer">교통 안내 출처</a> · <a href="https://linetek.co.kr/?lang=kr&amp;mId=124&amp;mode=view" target="_blank" rel="noopener noreferrer">정류장 안내</a></p></div>
       </div>
     </section>
+    <section id="attendance" class="attendance-section shell section-pad" aria-labelledby="attendance-title">
+      <div><p class="eyebrow">SAVE A SEAT FOR YOU</p><h2 id="attendance-title">함께해 주실 수 있나요?</h2><p class="section-copy">한 분 한 분, 정성껏 맞이하고 싶어요.<br>참석 여부를 미리 전해 주시면 준비에 큰 도움이 됩니다.</p></div>
+      <div class="attendance-action"><button class="button" type="button" data-open="rsvp-dialog">참석 여부 전달하기</button><p class="small-note">남겨주신 내용은 두 사람만 확인해요.</p></div>
+    </section>
     <section id="adventure" class="adventure-section section-pad" aria-labelledby="adventure-title">
       <div class="shell"><div class="game-heading"><div><p class="eyebrow">TWO PLAYERS. ONE ADVENTURE.</p><h2 id="adventure-title">어떤 길이든, 함께라면</h2></div><p>가끔은 걸려 넘어지고, 조금 느려져도.<br>우리의 날을 향해 함께 가고 있어요.</p></div>
         <div class="journey-panel">
@@ -91,6 +96,23 @@
         <div class="game-frame"><div class="game-hud"><span class="hud-heart" aria-hidden="true">♥ ♥</span><span id="game-stage">ON OUR WAY</span><button id="pause-game" class="icon-button" type="button" aria-label="애니메이션 일시정지" aria-pressed="false">Ⅱ</button></div><canvas id="runner" width="960" height="320" role="img" aria-label="신랑과 신부가 장애물을 넘으며 함께 달리는 애니메이션">두 사람이 장애물을 넘고, 가끔 부딪혀 잠시 느려져도 계속 함께 달려가는 모습입니다.</canvas><div class="game-bottom"><p id="game-status">하루하루, 우리의 날을 향해 함께 달려요.</p><span class="auto-badge">TOGETHER</span></div></div>
         <div class="jump-controls"><button id="jump-game" class="button" type="button" aria-controls="runner"><span aria-hidden="true">↑</span> 함께 점프!</button><p class="runner-hint">버튼을 누르면 둘이 차례로 폴짝 뛰어요.</p></div>
       </div>
+    </section>
+    <section id="heart" class="heart-section shell section-pad" aria-labelledby="heart-title">
+      <div class="section-heading"><p class="eyebrow">WITH ALL OUR HEARTS</p><h2 id="heart-title">마음을 전하는 방법</h2><p class="section-copy">멀리서 보내주시는 따뜻한 마음도<br>오래도록 소중히 간직하겠습니다.</p></div>
+      <div id="couple-contacts" class="couple-contacts"></div>
+      <div id="couple-accounts" class="couple-accounts"></div>
+      <p id="example-details-note" class="small-note" hidden>연락처와 계좌는 디자인 확인용 예시입니다. 실제 연락·송금에 사용하지 마세요.</p>
+    </section>
+    <section id="guest-photos" class="snap-section shell" aria-labelledby="snap-title">
+      <div><p class="eyebrow">THROUGH YOUR EYES</p><h2 id="snap-title">당신이 담은 우리의 하루</h2><p class="section-copy">그날의 웃음과 작은 순간들을 나눠 주세요.<br>사진은 두 사람에게만 전달됩니다.</p></div>
+      <button class="button button-outline" type="button" data-open="snap-dialog">사진 보내기 <span aria-hidden="true">↗</span></button>
+    </section>
+    <section id="guestbook" class="guestbook-section shell section-pad" aria-labelledby="guestbook-title">
+      <div class="guestbook-heading"><div><p class="eyebrow">LETTERS TO OUR TOMORROW</p><h2 id="guestbook-title">우리의 시작에 한마디</h2></div><button class="button" type="button" data-open="guestbook-dialog">축하의 말 남기기</button></div>
+      <p class="section-copy">지성에게, 지연에게, 그리고 함께할 우리에게.<br>보내주신 마음을 한 장씩 모아둘게요.</p>
+      <p id="guestbook-status" class="guestbook-status" role="status">축하 메시지를 불러오고 있어요.</p>
+      <div id="guestbook-list" class="guestbook-list"></div>
+      <div class="guestbook-actions"><button id="guestbook-more" class="text-button" type="button" hidden>더 보기</button><button id="guestbook-retry" class="text-button" type="button" hidden>다시 불러오기</button></div>
     </section>
   </main>
   <footer class="footer shell"><span class="footer-heart" aria-hidden="true">♡</span><h2>우리의 모험을<br>축복해 주셔서 감사합니다.</h2><p><span data-groom>노지성</span> <span class="name-heart">&</span> <span data-bride>이지연</span></p><button class="text-button share-button" id="share-invitation" type="button">청첩장 공유하기 <span aria-hidden="true">↗</span></button><div class="footer-meta"><span>MADE WITH LOVE, FOR OUR NEXT CHAPTER</span><span data-numeric-date>2027. 06. 12</span></div></footer>

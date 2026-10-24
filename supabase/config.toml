@@ -1,0 +1,5 @@
+project_id = "marry"
+[functions.wedding-api]
+verify_jwt = false
+# Public guest endpoints are intentional. Admin routes validate Auth access tokens
+# and an explicit server-side admin user-ID allowlist inside the function.

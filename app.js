@@ -4,6 +4,7 @@ import { startRunner } from './runner.js';
 import { startJourney } from './journey.js';
 import { startAlbum } from './album.js';
 import { album } from './album-config.js';
+import { startParticipation } from './participation.js';
 
 const $ = selector => document.querySelector(selector);
 const fill = (selector, value) => document.querySelectorAll(selector).forEach(node => { node.textContent=value; });
@@ -109,5 +110,6 @@ $('#share-invitation').addEventListener('click',async()=>{
 });
 $('#share-dialog').addEventListener('click',event=>{if(event.target===$('#share-dialog'))$('#share-dialog').close();});
 startAlbum(album);
+startParticipation(wedding);
 startJourney(wedding.date);
 startRunner($('#runner'), wedding.date);
