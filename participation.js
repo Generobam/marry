@@ -12,10 +12,9 @@ export function startParticipation(wedding) {
   document.body.insertAdjacentHTML('beforeend',
     dialogMarkup('guestbook-dialog','축하의 말 남기기', `${nameField}<fieldset class="choice-group"><legend>누구에게 전할까요?</legend><label><input type="radio" name="recipient" value="couple" checked> 두 사람에게</label><label><input type="radio" name="recipient" value="groom"> 지성에게</label><label><input type="radio" name="recipient" value="bride"> 지연에게</label></fieldset><label>축하 메시지<textarea name="message" rows="4" maxlength="500" required placeholder="따뜻한 한마디를 남겨 주세요"></textarea></label>${passwordField}<p class="field-help">글을 삭제할 때 필요해요. 비밀번호는 기억해 주세요.</p><label class="check-label"><input type="checkbox" name="consent" required> 이름과 메시지가 청첩장 방문자에게 공개되는 것을 확인했어요.</label>`, '마음 남기기') +
     dialogMarkup('rsvp-dialog','참석 여부 전달하기', `${nameField}<fieldset class="choice-group"><legend>어느 쪽 하객이신가요?</legend><label><input type="radio" name="side" value="groom" checked> 신랑 측</label><label><input type="radio" name="side" value="bride"> 신부 측</label></fieldset><label>참석 여부<select name="attendance"><option value="yes">참석해요</option><option value="no">마음으로 축하할게요</option><option value="maybe">아직 정하지 못했어요</option></select></label><div id="rsvp-counts" class="form-row"><label>본인 포함 참석 인원<input name="guests" type="number" min="1" max="10" value="1" required></label><label>식사 인원<input name="meals" type="number" min="0" max="10" value="1" required></label></div><label>전할 말 <span class="field-help">선택</span><textarea name="note" rows="2" maxlength="300" placeholder="준비에 참고할 내용이 있다면 알려 주세요"></textarea></label>${passwordField}<details class="edit-response"><summary>이미 전달한 응답을 수정할래요</summary><label>응답번호<input name="id" maxlength="36" placeholder="접수 후 받은 응답번호"></label><p class="field-help">이전 응답번호와 비밀번호를 입력하고 변경할 내용을 보내 주세요.</p></details><label class="check-label"><input type="checkbox" name="consent" required> 예식 준비를 위해 이름·참석 인원·메모를 두 사람에게 전달하는 데 동의해요.</label>`, '참석 여부 보내기') +
-    dialogMarkup('snap-dialog','우리의 하루 나누기', `${nameField}<label>사진 한 장<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required></label><p class="field-help">JPG · PNG · WEBP / 한 장당 최대 8MB<br>아이폰 HEIC 사진은 JPG로 변환해 주세요.</p><img id="snap-preview" class="snap-preview" alt="보낼 사진 미리보기" hidden><label>사진에 담긴 이야기 <span class="field-help">선택</span><textarea name="caption" rows="2" maxlength="200"></textarea></label><label class="check-label"><input name="consent" type="checkbox" required> 공유할 수 있는 사진이며, 두 사람에게 사진과 이름을 전달하는 데 동의해요.</label>`, '사진 보내기') +
     dialogMarkup('delete-message-dialog','남긴 글 삭제하기', `<input type="hidden" name="id">${passwordField}<p class="field-help">글을 남길 때 입력한 비밀번호로 삭제할 수 있어요.</p>`, '글 삭제하기')
   );
-  let opener; let savedScroll=0; let previewUrl;
+  let opener; let savedScroll=0;
   const dialogs=[...document.querySelectorAll('.participation-dialog')];
   function open(dialog,button) {opener=button;savedScroll=scrollY;document.body.style.setProperty('--participation-scroll-top',`${-savedScroll}px`);document.body.classList.add('participation-open');dialog.showModal();dialog.querySelector('[data-close]').focus({preventScroll:true});}
   document.querySelectorAll('[data-open]').forEach(button=>button.addEventListener('click',()=>open($(`#${button.dataset.open}`),button)));
@@ -82,14 +81,6 @@ export function startParticipation(wedding) {
     let copy=form.querySelector('.receipt-copy');if(!copy){copy=document.createElement('button');copy.type='button';copy.className='text-button receipt-copy';copy.textContent='응답번호 복사';form.querySelector('.form-feedback').after(copy);copy.addEventListener('click',async()=>{try{await copyValue(form.elements.id.value,'');copy.textContent='복사했어요';}catch(error){feedback(form,error.message,true);}});}
     copy.textContent='응답번호 복사';
   });
-  const photoInput=$('#snap-dialog [name=photo]');
-  photoInput.addEventListener('change',()=>{
-    if(previewUrl)URL.revokeObjectURL(previewUrl);$('#snap-preview').hidden=true;
-    const file=photoInput.files[0];photoInput.setCustomValidity('');if(!file)return;
-    if(file.size>8*1024*1024 || !['image/jpeg','image/png','image/webp'].includes(file.type)){photoInput.setCustomValidity('8MB 이하의 JPG, PNG, WEBP 사진을 선택해 주세요.');photoInput.reportValidity();return;}
-    previewUrl=URL.createObjectURL(file);$('#snap-preview').src=previewUrl;$('#snap-preview').hidden=false;
-  });
-  bindForm('#snap-dialog',async(form,data)=>{data.set('consent',String(data.get('consent')==='on'));await request('/photos',{method:'POST',data});form.reset();$('#snap-preview').hidden=true;if(previewUrl)URL.revokeObjectURL(previewUrl);feedback(form,'사진을 두 사람에게 전달했어요. 함께 담아주셔서 감사합니다.');});
   renderContactDetails(wedding);
 }
 function renderContactDetails(wedding) {

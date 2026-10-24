@@ -1,3 +1,5 @@
+import { configured, request } from './participation-api.js';
+
 export function startAlbum(items) {
   const grid = document.querySelector('#album-grid');
   const dialog = document.querySelector('#album-dialog');
@@ -65,7 +67,7 @@ export function startAlbum(items) {
     document.querySelector('#album-close').focus({ preventScroll: true });
   }
   function navigate(delta) { if (entries.length > 1) show(active + delta); }
-  entries.forEach((item, index) => {
+  function appendItem(item, index) {
     const button = document.createElement('button');
     button.className = 'album-item'; button.type = 'button';
     button.setAttribute('aria-label', `${index + 1}번째 ${item.type === 'video' ? '영상' : '사진'} 크게 보기: ${item.caption || item.alt || ''}`);
@@ -81,7 +83,38 @@ export function startAlbum(items) {
     const badge = document.createElement('span'); badge.className = 'album-item-badge'; badge.setAttribute('aria-hidden', 'true');
     badge.textContent = item.type === 'video' ? '▷ 영상' : '＋ 크게 보기';
     button.append(preview, label, badge); button.addEventListener('click', () => open(index, button)); grid.append(button);
-  });
+  }
+  entries.forEach(appendItem);
+  let loading = false; let nextOffset = 0;
+  const loadedIds = new Set();
+  const loadStatus = document.querySelector('#album-load-status');
+  const retry = document.querySelector('#album-retry');
+  async function loadPublished() {
+    if (loading) return;
+    loading = true; retry.hidden = true;
+    loadStatus.hidden = false; loadStatus.textContent = '사진을 불러오고 있어요.';
+    try {
+      let more = true;
+      while (more) {
+        const page = await request(`/album?offset=${nextOffset}`);
+        for (const item of page.items) {
+          if (loadedIds.has(item.id)) continue;
+          loadedIds.add(item.id); entries.push(item); appendItem(item, entries.length - 1);
+        }
+        nextOffset += page.items.length; more = page.more && page.items.length > 0;
+      }
+      loadStatus.hidden = true;
+    } catch {
+      loadStatus.textContent = '추가 사진을 불러오지 못했어요. 다시 시도해 주세요.'; retry.hidden = false;
+    } finally {
+      loading = false; grid.dataset.count = String(entries.length);
+      document.querySelector('#album-empty').hidden = entries.length > 0;
+      previous.disabled = next.disabled = entries.length < 2;
+      if (dialog.open) count.textContent = `${active + 1} / ${entries.length}`;
+    }
+  }
+  retry.addEventListener('click', loadPublished);
+  if (configured) loadPublished();
   previous.addEventListener('click', () => navigate(-1)); next.addEventListener('click', () => navigate(1));
   zoom.addEventListener('click', () => setZoom(!viewport.classList.contains('is-zoomed')));
   document.querySelector('#album-close').addEventListener('click', () => dialog.close());

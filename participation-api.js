@@ -1,8 +1,8 @@
 import { participation } from './participation-config.js';
 export const configured = Boolean(participation.apiUrl);
-export async function request(path, {method='GET',data,token} = {}) {
+export async function request(path, {method='GET',data,token,timeoutMs=45000} = {}) {
   if(!configured) throw new Error('아직 접수를 준비하고 있어요. 조금만 기다려 주세요.');
-  const controller = new AbortController(); const timer = setTimeout(()=>controller.abort(),45000);
+  const controller = new AbortController(); const timer = setTimeout(()=>controller.abort(),timeoutMs);
   const multipart = data instanceof FormData;
   try {
     const response = await fetch(`${participation.apiUrl.replace(/\/$/,'')}${path}`,{method,headers:{...(!multipart && data ? {'Content-Type':'application/json'} : {}),...(token ? {Authorization:`Bearer ${token}`} : {})},body:multipart ? data : data ? JSON.stringify(data) : undefined,signal:controller.signal});

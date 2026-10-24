@@ -42,3 +42,12 @@ export function csvCell(value) {
   if (/^[\s]*[=+@-]/.test(cell)) cell = `'${cell}`;
   return `"${cell.replaceAll('"','""')}"`;
 }
+
+export const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+export function albumMediaType(bytes, declaredType) {
+  const signature = new TextDecoder().decode(bytes.slice(4,8));
+  if (declaredType === 'video/mp4' && signature === 'ftyp') return ['video/mp4', 'mp4', 'video'];
+  if (declaredType === 'video/webm' && [26,69,223,163].every((value,index) => bytes[index] === value)) return ['video/webm', 'webm', 'video'];
+  const [mime, extension] = photoType(bytes);
+  return [mime, extension, 'image'];
+}

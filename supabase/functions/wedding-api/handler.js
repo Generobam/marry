@@ -1,7 +1,7 @@
-import { InputError, text, password, id, guestMessage, rsvp, photoType, MAX_PHOTO_BYTES } from './validation.js';
+import { InputError, text, password, id, guestMessage, rsvp, albumMediaType, MAX_PHOTO_BYTES, MAX_VIDEO_BYTES } from './validation.js';
 const PUBLIC_FIELDS = 'id,name,recipient,message,created_at';
-const ADMIN_FIELDS = { guestbook: `${PUBLIC_FIELDS},status`, rsvps: 'id,name,side,attendance,guests,meals,note,updated_at', photos: 'id,name,caption,path,created_at' };
-const TABLES = { guestbook: 'wedding_messages', rsvps: 'wedding_rsvps', photos: 'wedding_photos' };
+const ADMIN_FIELDS = { guestbook: `${PUBLIC_FIELDS},status`, rsvps: 'id,name,side,attendance,guests,meals,note,updated_at', album: 'id,type,caption,alt,path,created_at' };
+const TABLES = { guestbook: 'wedding_messages', rsvps: 'wedding_rsvps', album: 'wedding_album' };
 const hex = bytes => [...new Uint8Array(bytes)].map(x => x.toString(16).padStart(2,'0')).join('');
 export async function hashPassword(value, salt = crypto.randomUUID()) {
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(value), 'PBKDF2', false, ['deriveBits']);
@@ -46,9 +46,9 @@ export function createHandler(config, fetcher = fetch) {
       if(!allowed) throw new InputError('잠시 쉬었다가 다시 시도해 주세요. 한 시간 동안 요청이 너무 많았어요.',429);
     }
   }
-  async function photoDelete(record) {
-    await service('/storage/v1/object/wedding-guest-photos',{method:'DELETE',body:JSON.stringify({prefixes:[record.path]})});
-    await db(`wedding_photos?id=eq.${record.id}`,{method:'DELETE'});
+  async function albumDelete(record) {
+    await service('/storage/v1/object/wedding-album',{method:'DELETE',body:JSON.stringify({prefixes:[record.path]})});
+    await db(`wedding_album?id=eq.${record.id}`,{method:'DELETE'});
   }
   return async request => {
     const origin=request.headers.get('origin');
@@ -65,12 +65,17 @@ export function createHandler(config, fetcher = fetch) {
       const admin=route.startsWith('/admin/');
       if(admin) await requireAdmin(request);
       else if(request.method!=='GET') await limit(request);
+      if(route==='/album' && request.method==='GET') {
+        const rows=await db('wedding_album?select=id,type,caption,alt,path&order=created_at.asc,id.asc&limit=21&offset='+offset);
+        const items=rows.slice(0,20).map(({path,...item})=>({...item,src:`${config.url}/storage/v1/object/public/wedding-album/${path}`}));
+        return reply({items,more:rows.length>20});
+      }
       if(route==='/guestbook' && request.method==='GET') {
         const rows=await db(`wedding_messages?status=eq.visible&select=${PUBLIC_FIELDS}&order=created_at.desc,id.desc&limit=21&offset=${offset}`);
         return reply({items:rows.slice(0,20),more:rows.length>20});
       }
       let body={};
-      if(!['GET','HEAD'].includes(request.method) && route!=='/photos') {
+      if(!['GET','HEAD'].includes(request.method) && !(route==='/admin/album' && request.method==='POST')) {
         try {body=JSON.parse(new TextDecoder().decode(await boundedBody(request,16384)));} catch(error) {if(error instanceof InputError)throw error;throw new InputError('입력 내용을 확인해 주세요.');}
         if(!body || typeof body!=='object' || Array.isArray(body)) throw new InputError('입력 내용을 확인해 주세요.');
         if(body.website) throw new InputError('요청을 처리할 수 없어요.');
@@ -98,17 +103,18 @@ export function createHandler(config, fetcher = fetch) {
         }
         return reply({id:recordId});
       }
-      if(route==='/photos' && request.method==='POST') {
-        const bytes=await boundedBody(request,MAX_PHOTO_BYTES+32768);
-        let form;try {form=await new Request(request.url,{method:'POST',headers:{'Content-Type':request.headers.get('content-type') || ''},body:bytes}).formData();}catch{throw new InputError('사진 입력을 확인해 주세요.');}
-        if(form.get('website') || form.get('consent')!=='true') throw new InputError('사진 전달 동의를 확인해 주세요.');
-        const name=text(form.get('name'),'이름',30),caption=text(form.get('caption') || '','설명',200,0);
-        const file=form.get('photo');if(!(file instanceof Blob)||file.size===0||file.size>MAX_PHOTO_BYTES)throw new InputError('사진은 한 장씩, 8MB 이하로 올려 주세요.');
-        const [mime,extension]=photoType(new Uint8Array(await file.slice(0,12).arrayBuffer()));
+      if(route==='/admin/album' && request.method==='POST') {
+        const bytes=await boundedBody(request,MAX_VIDEO_BYTES+32768);
+        let form;try {form=await new Request(request.url,{method:'POST',headers:{'Content-Type':request.headers.get('content-type') || ''},body:bytes}).formData();}catch{throw new InputError('사진 또는 영상 파일을 확인해 주세요.');}
+        const caption=text(form.get('caption') || '', '설명', 200, 0);
+        const file=form.get('media');
+        if(!(file instanceof Blob)||file.size===0||file.size>MAX_VIDEO_BYTES)throw new InputError('사진은 8MB, 영상은 50MB 이하로 올려 주세요.');
+        const [mime,extension,type]=albumMediaType(new Uint8Array(await file.slice(0,16).arrayBuffer()),file.type);
+        if(type==='image' && file.size>MAX_PHOTO_BYTES)throw new InputError('사진은 8MB 이하로 올려 주세요.',413);
         const recordId=crypto.randomUUID(),path=`${recordId}.${extension}`;
-        await service(`/storage/v1/object/wedding-guest-photos/${path}`,{method:'POST',headers:{'Content-Type':mime,'x-upsert':'false'},body:file});
-        try {await db('wedding_photos',{method:'POST',body:JSON.stringify({id:recordId,name,caption,path})});}
-        catch(error) {await service('/storage/v1/object/wedding-guest-photos',{method:'DELETE',body:JSON.stringify({prefixes:[path]})}).catch(()=>{});throw error;}
+        await service(`/storage/v1/object/wedding-album/${path}`,{method:'POST',headers:{'Content-Type':mime,'x-upsert':'false'},body:file});
+        try {await db('wedding_album',{method:'POST',body:JSON.stringify({id:recordId,type,caption,alt:caption || '두 사람의 소중한 순간',path})});}
+        catch(error) {await service('/storage/v1/object/wedding-album',{method:'DELETE',body:JSON.stringify({prefixes:[path]})}).catch(()=>{});throw error;}
         return reply({id:recordId},201);
       }
       if(admin) {
@@ -117,10 +123,7 @@ export function createHandler(config, fetcher = fetch) {
           const order=kind==='rsvps'?'updated_at':'created_at';
           const rows=await db(`${table}?select=${ADMIN_FIELDS[kind]}&order=${order}.desc,id.desc&limit=101&offset=${offset}`);
           const items=rows.slice(0,100);
-          if(kind==='photos') for(const item of items) {
-            const signed=await service(`/storage/v1/object/sign/wedding-guest-photos/${item.path}`,{method:'POST',body:JSON.stringify({expiresIn:300})});
-            item.url=`${config.url}/storage/v1${signed.signedURL}`;delete item.path;
-          }
+          if(kind==='album') for(const item of items) {item.src=`${config.url}/storage/v1/object/public/wedding-album/${item.path}`;delete item.path;}
           return reply({items,more:rows.length>100});
         }
         const recordId=id(body.id);
@@ -128,8 +131,12 @@ export function createHandler(config, fetcher = fetch) {
           if(!['visible','hidden'].includes(body.status)) throw new InputError('공개 상태를 확인해 주세요.');
           await db(`${table}?id=eq.${recordId}`,{method:'PATCH',body:JSON.stringify({status:body.status})});return reply({ok:true});
         }
+        if(request.method==='PATCH' && kind==='album') {
+          const caption=text(body.caption || '', '설명', 200, 0);
+          await db(`${table}?id=eq.${recordId}`,{method:'PATCH',body:JSON.stringify({caption,alt:caption || '두 사람의 소중한 순간'})});return reply({ok:true});
+        }
         if(request.method==='DELETE') {
-          if(kind==='photos') {const rows=await db(`${table}?id=eq.${recordId}&select=id,path`);if(rows[0])await photoDelete(rows[0]);}
+          if(kind==='album') {const rows=await db(`${table}?id=eq.${recordId}&select=id,path`);if(rows[0])await albumDelete(rows[0]);}
           else await db(`${table}?id=eq.${recordId}`,{method:'DELETE'});
           return reply({ok:true});
         }

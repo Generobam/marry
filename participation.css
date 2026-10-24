@@ -3,7 +3,7 @@
 .section-copy { font-size: var(--text-sm); color: var(--color-muted); line-height: 2; margin-top: var(--space-md); }
 .small-note { font-size: var(--text-xs); color: var(--color-muted); line-height: 1.9; margin-top: var(--space-md); }
 .attendance-section { display: flex; align-items: center; justify-content: space-between; gap: var(--space-xl); border-bottom: var(--rule); }
-.attendance-section h2, .section-heading h2, .guestbook-heading h2, .snap-section h2 { margin-top: var(--space-md); }
+.attendance-section h2, .section-heading h2, .guestbook-heading h2 { margin-top: var(--space-md); }
 .attendance-action { text-align: center; flex-shrink: 0; }
 .heart-section { border-top: var(--rule); }
 .section-heading { text-align: center; }
@@ -19,9 +19,6 @@
 .account-content { padding: 8px 4px 24px; font-size: var(--text-sm); }
 .account-number { font-size: var(--text-lg); margin-block: 8px 18px; font-variant-numeric: tabular-nums; }
 #example-details-note { text-align: center; max-width: 640px; margin-inline: auto; color: var(--color-rose); }
-.snap-section { display: flex; align-items: center; justify-content: space-between; gap: var(--space-xl); border-block: var(--rule); padding-block: var(--space-xl); }
-.snap-section h2 { font-size: var(--text-xl); }
-.snap-section > button { flex-shrink: 0; }
 .guestbook-heading { display: flex; justify-content: space-between; align-items: end; gap: var(--space-lg); }
 .guestbook-status { font-size: var(--text-sm); color: var(--color-muted); text-align: center; margin-block: var(--space-xl); }
 .guestbook-status:empty { display: none; }
@@ -60,7 +57,6 @@ body.participation-open { position: fixed; width: 100%; top: var(--participation
 .form-trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: clip; }
 .form-submit { width: 100%; }
 form[aria-busy=true] { cursor: progress; }
-.snap-preview { display: block; width: 100%; max-height: 220px; object-fit: contain; background: var(--color-paper-2); }
 .sent-heart { position: absolute; bottom: 50px; left: 50%; color: var(--color-rose); pointer-events: none; animation: sent-heart 1.4s ease-out forwards; }
 @keyframes sent-heart { from {transform: translateY(0);opacity:1;} to {transform:translateY(-65px);opacity:0;} }
 .admin-shell { max-width: 960px; margin: 0 auto; padding: 36px 24px; }
@@ -75,8 +71,8 @@ form[aria-busy=true] { cursor: progress; }
 .admin-summary { background: var(--color-paper-2); padding: 18px; white-space: pre-line; }
 .admin-photo { max-width: 240px; max-height: 180px; display: block; object-fit: contain; margin-top: 12px; }
 @media(max-width:768px) {
-  .attendance-section, .snap-section { display: block; text-align: center; }
-  .attendance-action, .snap-section > button { margin-top: 24px; }
+  .attendance-section { display: block; text-align: center; }
+  .attendance-action { margin-top: 24px; }
   .guestbook-list { grid-template-columns: minmax(0,1fr); }
   .guestbook-heading { display: block; text-align: center; }
   .guestbook-heading > button { margin-top: 24px; }
@@ -92,3 +88,11 @@ form[aria-busy=true] { cursor: progress; }
 .participation-dialog-header h2 { margin: 0; padding: 0; }
 .participation-dialog-header .dialog-close { position: static; flex-shrink: 0; }
 @media(max-width:375px) { .participation-dialog-header { top: -18px; } }
+
+.admin-upload { display: grid; gap: 16px; max-width: 560px; padding-block: 16px 28px; }
+.admin-upload label, .album-caption-editor { display: grid; gap: 8px; font-size: var(--text-sm); }
+.admin-upload input, .album-caption-editor input { width: 100%; min-width: 0; padding: 12px; border: var(--rule); background: var(--color-white); color: var(--color-ink); font: inherit; font-size: 16px; min-height: 48px; }
+.admin-upload video, .admin-upload img { display: block; width: 100%; max-height: 260px; object-fit: contain; }
+.admin-upload-preview:empty { display: none; }
+.admin-entry video { max-width: 100%; }
+.album-caption-editor { margin-top: 16px; max-width: 560px; }
