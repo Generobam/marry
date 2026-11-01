@@ -117,23 +117,52 @@ startParticipation(wedding);
 startJourney(wedding.date);
 startRunner($('#runner'), wedding.date);
 
-// Animate only on entry; native scrolling and all content remain available without motion.
+// Scroll-linked motion uses native scrolling, including mobile Safari.
 const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
-const revealTargets = document.querySelectorAll('.hero-copy, .hero-photo, .letter > *, .album-heading, .album-grid, .day-intro, .calendar-wrap, .countdown-wrap, .location-layout > *, .attendance-section > *, .game-heading, .journey-panel, #guestbook, .footer');
-if ('IntersectionObserver' in window) {
-  const observer = new IntersectionObserver(entries => {
-    for (const entry of entries) if (entry.isIntersecting) {
-      entry.target.classList.remove('reveal-pending');
-      observer.unobserve(entry.target);
-    }
-  }, { threshold: 0, rootMargin: '0px 0px -24px 0px' });
-  if (!motionPreference.matches) revealTargets.forEach(node => {
-    node.classList.add('scroll-reveal', 'reveal-pending'); observer.observe(node);
-  });
-  motionPreference.addEventListener('change', () => {
-    if (motionPreference.matches) {
-      observer.disconnect(); revealTargets.forEach(node => node.classList.remove('reveal-pending'));
-    }
-  });
-  document.addEventListener('focusin', event => event.target.closest('.reveal-pending')?.classList.remove('reveal-pending'));
+for (const block of document.querySelectorAll('.hero-copy h1, .hero-description, .letter h2, .letter > p:not(.eyebrow)')) {
+  const lines = []; let line = document.createElement('span');
+  line.className = 'story-line';
+  for (const node of [...block.childNodes]) {
+    if (node.nodeName === 'BR') { lines.push(line); line = document.createElement('span'); line.className = 'story-line'; }
+    else line.append(node);
+  }
+  lines.push(line); block.replaceChildren(...lines);
 }
+const motionNodes = [...document.querySelectorAll('.story-line, .hero-copy > .eyebrow, .couple-names, .hero-date, .letter > .eyebrow, .letter-sign, .album-heading, .day-intro, .calendar-wrap, .countdown-wrap, .location-layout > *, .attendance-section > *, .game-heading, .journey-panel, #guestbook, .footer')];
+const photoStory = document.querySelector('.photo-story');
+const portrait = document.querySelector('.hero-photo');
+const clamp = value => Math.max(0, Math.min(1, value));
+let motionFrame = 0;
+function paintScrollStory() {
+  motionFrame = 0;
+  if (document.hidden || document.querySelector('dialog[open]')) return;
+  const reduced = motionPreference.matches;
+  document.documentElement.classList.toggle('scroll-story-active', !reduced);
+  const height = window.innerHeight;
+  // Read layout before writes. Individual translate does not affect normal flow.
+  const positions = motionNodes.map(node => node.getBoundingClientRect().top - (Number(node.dataset.motionShift) || 0));
+  const photoRect = photoStory.getBoundingClientRect();
+  motionNodes.forEach((node, index) => {
+    const progress = reduced || node.contains(document.activeElement) ? 1 : clamp((height * .94 - positions[index]) / (height * .28));
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const shift = (1 - eased) * 48;
+    node.dataset.motionShift = String(shift);
+    node.style.opacity = String(.12 + .88 * eased);
+    node.style.translate = `0 ${shift}px`;
+  });
+  const travel = Math.max(1, photoStory.offsetHeight - portrait.offsetHeight - 32);
+  const progress = clamp((32 - photoRect.top) / travel);
+  portrait.style.transform = reduced ? 'none' : `scale(${.82 + .18 * progress})`;
+  portrait.style.borderRadius = reduced ? '' : `${24 * (1 - progress)}px`;
+}
+function queueScrollStory() {
+  if (!motionFrame) motionFrame = requestAnimationFrame(paintScrollStory);
+}
+window.addEventListener('scroll', queueScrollStory, { passive: true });
+window.addEventListener('resize', queueScrollStory, { passive: true });
+motionPreference.addEventListener('change', queueScrollStory);
+document.addEventListener('focusin', queueScrollStory);
+document.addEventListener('visibilitychange', queueScrollStory);
+document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('close', queueScrollStory));
+document.fonts.ready.then(queueScrollStory);
+queueScrollStory();
