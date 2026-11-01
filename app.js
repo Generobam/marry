@@ -131,6 +131,9 @@ for (const block of document.querySelectorAll('.hero-copy h1, .hero-description,
 const motionNodes = [...document.querySelectorAll('.story-line, .hero-copy > .eyebrow, .couple-names, .hero-date, .letter > .eyebrow, .letter-sign, .album-heading, .day-intro, .calendar-wrap, .countdown-wrap, .location-layout > *, .attendance-section > *, .game-heading, .journey-panel, #guestbook, .footer')];
 const photoStory = document.querySelector('.photo-story');
 const portrait = document.querySelector('.hero-photo');
+const bowPhoto = document.querySelector('.bow-photo');
+let bowReady = false;
+bowPhoto.decode().then(() => { bowReady = true; queueScrollStory(); }).catch(() => {});
 const clamp = value => Math.max(0, Math.min(1, value));
 let motionFrame = 0;
 function paintScrollStory() {
@@ -154,6 +157,9 @@ function paintScrollStory() {
   const progress = clamp((32 - photoRect.top) / travel);
   portrait.style.transform = reduced ? 'none' : `scale(${.82 + .18 * progress})`;
   portrait.style.borderRadius = reduced ? '' : `${24 * (1 - progress)}px`;
+  const bow = clamp((progress - .28) / .38);
+  portrait.style.setProperty('--bow-progress', reduced || !bowReady ? '0' : String(bow * bow * (3 - 2 * bow)));
+  portrait.style.setProperty('--thanks-progress', String(reduced ? 1 : clamp((progress - .6) / .25)));
 }
 function queueScrollStory() {
   if (!motionFrame) motionFrame = requestAnimationFrame(paintScrollStory);
