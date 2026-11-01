@@ -1,4 +1,6 @@
-import { mkdir, copyFile, cp } from 'node:fs/promises';
+import { wedding } from '../wedding-config.js';
+import { createCalendarEvent } from '../date-utils.js';
+import { mkdir, copyFile, cp, writeFile } from 'node:fs/promises';
 const output = new URL('../dist/', import.meta.url);
 await mkdir(output, { recursive: true });
 for (const file of ['index.html', 'styles.css', 'tokens.css', 'app.js', 'wedding-config.js', 'date-utils.js', 'pixel-art.js', 'runner.js', 'runner-model.js', 'journey.js', 'album.js', 'album-config.js', 'participation.js', 'participation.css', 'participation-config.js', 'participation-api.js', 'admin.html', 'admin.js', '.nojekyll']) {
@@ -6,3 +8,5 @@ for (const file of ['index.html', 'styles.css', 'tokens.css', 'app.js', 'wedding
 }
 await cp(new URL('../assets/', import.meta.url), new URL('assets/', output), { recursive: true });
 console.log('Static wedding invitation built in dist/');
+
+await writeFile(new URL('assets/our-wedding.ics', output), createCalendarEvent(wedding));

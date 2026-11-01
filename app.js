@@ -1,5 +1,5 @@
 import { wedding } from './wedding-config.js';
-import { countdownTo, koreaDateParts, calendarCells, createCalendarEvent } from './date-utils.js';
+import { countdownTo, koreaDateParts, calendarCells } from './date-utils.js';
 import { startRunner } from './runner.js';
 import { startJourney } from './journey.js';
 import { startAlbum } from './album.js';
@@ -93,12 +93,15 @@ async function copyText(text,success) {
   try {await navigator.clipboard.writeText(text);toast(success);}
   catch {$('#share-url').value=text;$('#share-dialog').showModal();$('#share-url').focus();$('#share-url').select();}
 }
-$('#calendar-save').addEventListener('click',()=>{
-  const blob=new Blob([createCalendarEvent(wedding)],{type:'text/calendar;charset=utf-8'});
-  const url=URL.createObjectURL(blob);const link=document.createElement('a');
-  link.href=url;link.download='our-wedding.ics';document.body.append(link);link.click();link.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),10000);toast('일정 파일을 열어 달력에 추가해 주세요.');
-});
+const calendarStamp = value => new Date(value).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const googleCalendar = new URL('https://calendar.google.com/calendar/render');
+googleCalendar.search = new URLSearchParams({
+  action: 'TEMPLATE', text: `${wedding.groom} ♥ ${wedding.bride} 결혼식`,
+  dates: `${calendarStamp(date)}/${calendarStamp(date.getTime() + 3600000)}`,
+  ctz: 'Asia/Seoul', location: [wedding.venue, wedding.hall, wedding.address].filter(Boolean).join(' '),
+  details: '함께하는 첫 번째 모험에 초대합니다. https://generobam.github.io/marry/',
+}).toString();
+$('#calendar-google').href = googleCalendar.href;
 $('#copy-address').addEventListener('click',()=>copyText(wedding.address,'예식장 주소를 복사했어요.'));
 $('#share-invitation').addEventListener('click',async()=>{
   const url=new URL(location.href);url.hash='';
@@ -113,3 +116,24 @@ startAlbum(album);
 startParticipation(wedding);
 startJourney(wedding.date);
 startRunner($('#runner'), wedding.date);
+
+// Animate only on entry; native scrolling and all content remain available without motion.
+const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+const revealTargets = document.querySelectorAll('.hero-copy, .hero-photo, .letter > *, .album-heading, .album-grid, .day-intro, .calendar-wrap, .countdown-wrap, .location-layout > *, .attendance-section > *, .game-heading, .journey-panel, #guestbook, .footer');
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) if (entry.isIntersecting) {
+      entry.target.classList.remove('reveal-pending');
+      observer.unobserve(entry.target);
+    }
+  }, { threshold: 0, rootMargin: '0px 0px -24px 0px' });
+  if (!motionPreference.matches) revealTargets.forEach(node => {
+    node.classList.add('scroll-reveal', 'reveal-pending'); observer.observe(node);
+  });
+  motionPreference.addEventListener('change', () => {
+    if (motionPreference.matches) {
+      observer.disconnect(); revealTargets.forEach(node => node.classList.remove('reveal-pending'));
+    }
+  });
+  document.addEventListener('focusin', event => event.target.closest('.reveal-pending')?.classList.remove('reveal-pending'));
+}
